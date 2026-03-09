@@ -285,6 +285,123 @@ All deltas within ±0.003. The system's macroscopic behavior is scale-invariant 
 
 Random leads in Phi and R but trails in self-prediction and E. Moore leads in self-prediction (tied with hex), T, and E. No single topology dominates all metrics — the MCH correlates are genuinely dissociated.
 
+---
+
+## Deep cross-dataset analysis
+
+Statistical mining across all three datasets (5,500 total simulation rows). The findings below were verified for replication across at least two grid sizes unless noted.
+
+### 1. E ≡ Φ on structured graphs
+
+**The biggest finding.** Causal Efficacy and Phi are the same measurement on spatially structured networks. They completely decouple on random graphs.
+
+| Topology | r(E, Φ) | Linear slope | RMSE |
+|----------|:-:|:-:|:-:|
+| von_neumann | **+0.998** | 0.327 | 0.003 |
+| moore | **+0.994** | 0.349 | 0.005 |
+| hex | **+0.996** | 0.337 | 0.004 |
+| small_world | **+0.984** | 0.321 | 0.007 |
+| random | +0.178 | 0.008 | — |
+
+On every grid topology, knowing E gives you Φ (and vice versa) to within ~0.5% RMSE. On random graphs, the correlation drops to noise-level (+0.178). The linear slope on random is 0.008 — essentially flat.
+
+**Implication:** Φ is not measuring "information integration" in a topology-agnostic sense. On structured networks, it is measuring causal self-determination — how much an agent's trajectory is driven by its own dynamics vs. external perturbation. Random connectivity destroys this equivalence because spatial structure is what makes causal efficacy and integration co-vary.
+
+### 2. Simpson's paradox: Φ-self correlation reverses sign
+
+On moore and hex, the Φ-self correlation is **positive** within each noise level but **negative** when pooled across noise levels.
+
+**Moore (size 24):**
+
+| Noise | r(Φ, self) within |
+|-------|:-:|
+| 0.04 | +0.41 |
+| 0.08 | +0.46 |
+| 0.12 | +0.55 |
+| 0.20 | +0.48 |
+| 0.30 | +0.49 |
+| **Pooled** | **−0.28** |
+
+Within any single noise level, higher Φ means higher self-prediction. Pool the data, and the sign flips to negative. The confound: noise simultaneously increases self-prediction (+0.018 from low to high noise) while crushing Φ (−0.117). The marginal correlation inherits the noise trend, not the within-condition relationship.
+
+**Replication:** The sign flip replicates at size 12 (moore within: +0.38, pooled: −0.14; hex within: +0.41, pooled: −0.11). Von Neumann, random, and small_world do NOT show the flip at either size — the paradox is specific to high-connectivity grid topologies.
+
+### 3. Moore T-E dissociation
+
+On moore, Temporal Persistence and Causal Efficacy predict self-prediction in **opposite directions**, and are strongly anti-correlated with each other.
+
+| Correlation | moore | hex | von_neumann | random | small_world |
+|-------------|:-:|:-:|:-:|:-:|:-:|
+| r(T, self) | **+0.70** | +0.52 | +0.03 | +0.12 | +0.22 |
+| r(E, self) | **−0.71** | −0.71 | −0.12 | −0.14 | +0.06 |
+| r(T, E) | **−0.82** | −0.74 | +0.07 | +0.32 | −0.08 |
+
+On moore, a stable self-model (high T) predicts better behavior, but a self-determined trajectory (high E) predicts *worse* behavior. The two metrics pull apart: r(T,E) = −0.82. This says that on high-connectivity grids, the agents that predict themselves best are the ones whose self-models are stable over time (high T) but whose dynamics are externally driven (low E). Self-determination is a *liability* for self-prediction on moore.
+
+Hex shows the same pattern more weakly. Von Neumann, random, and small_world show near-zero T-E correlation — the dissociation is connectivity-dependent.
+
+### 4. Seed ranks are non-transferable across sizes
+
+Spearman rank correlations of seed mean_self (averaged over topologies and noises) across grid sizes:
+
+| Pair | Spearman ρ |
+|------|:-:|
+| size 12 vs 24 | −0.115 |
+| size 24 vs 48 | +0.042 |
+| size 12 vs 48 | +0.539 |
+
+The 12-vs-24 and 24-vs-48 correlations are essentially zero — knowing which seed wins at one size tells you nothing about the next size. The 12-vs-48 correlation is moderate (+0.54), suggesting the even-sized grids share some structural feature that size 24 disrupts.
+
+**Example:** Seed 4 ranks 10th at size 12, 1st at size 24, 10th at size 48. Seed 8 ranks 1st at size 12, 7th at size 24, 3rd at size 48. Winner identity is entirely size-dependent.
+
+### 5. Von Neumann trajectory anti-prediction (size 24)
+
+On von_neumann at size 24, runs that look good at tick 500 tend to look **worse** at tick 1000.
+
+| Topology | r(mid, end) size 24 | r(mid, end) size 48 |
+|----------|:-:|:-:|
+| von_neumann | **−0.273** | −0.141 |
+| moore | −0.115 | +0.505 |
+| hex | −0.080 | +0.346 |
+| random | +0.048 | −0.157 |
+| small_world | −0.121 | +0.147 |
+
+Von Neumann is the most strongly anti-predictive — early success anti-correlates with final performance. At size 12 the effect is weaker (−0.063). This mean-reversion effect suggests that on sparse grids, early high-scorers are exploiting transient patterns that collapse over longer timescales.
+
+Moore and hex invert between sizes: anti-predictive at size 24 but positively predictive at size 48, where runs have enough agents to stabilize early patterns.
+
+### 6. Cross-topology transferability
+
+Seeds that do well on one grid topology tend to do well on other grid topologies — but random is independent.
+
+**Seed rank correlation between topologies (size 24):**
+
+| | moore | hex | random | small_world |
+|---|:-:|:-:|:-:|:-:|
+| von_neumann | +0.647 | +0.726 | +0.195 | — |
+| moore | — | **+0.877** | +0.255 | — |
+
+**Replication at size 12:** moore-hex = +0.892, vn-moore = +0.675, vn-random = +0.258, moore-random = +0.285. The pattern holds: grid topologies form a performance cluster (moore-hex especially tight at r ≈ 0.88), while random graph success is an orthogonal skill.
+
+### 7. Random topology is a different universe
+
+Random topology is an outlier on nearly every metric and correlation:
+
+| Property | Grid topologies | Random |
+|----------|:-:|:-:|
+| E-Φ correlation | r > +0.98 | r = +0.18 |
+| Noise response (self) | varies | immune |
+| Noise response (R, T) | declines/flat | flat |
+| R (reflexivity) | ~+0.125 | **+0.181** |
+| r(R, self) | −0.44 to +0.44 | **+0.82** |
+| Cross-topo transfer | r > +0.6 | r < +0.3 |
+| r(mid, end) | negative | +0.05 |
+| Φ-self Simpson's paradox | yes (moore/hex) | no |
+
+On random graphs, reflexivity (R) is the dominant predictor of self-prediction accuracy. On grids, T or noise-level dominates instead. Random agents are playing a fundamentally different game: no spatial structure means no causal-efficacy-integration link, no noise vulnerability, and no cross-topology skill transfer.
+
+---
+
 ## Reproduce
 
 ```bash
@@ -301,6 +418,12 @@ python run.py --sweep --sweep-seeds 1-50 \
   --sweep-topos von_neumann,moore,hex,random,small_world \
   --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
   --ticks 1000 --size 12 --sweep-csv sweep_size12.csv
+
+# Size 48 sweep (with R, T, E metrics)
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,hex,random,small_world \
+  --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
+  --ticks 1000 --size 48 --sweep-csv sweep_size48.csv
 ```
 
-Raw data: [sweep_1250.csv](sweep_1250.csv), [sweep_size12.csv](sweep_size12.csv)
+Raw data: [sweep_1250.csv](sweep_1250.csv), [sweep_size12.csv](sweep_size12.csv), [sweep_size48.csv](sweep_size48.csv)

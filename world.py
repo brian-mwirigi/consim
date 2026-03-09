@@ -31,6 +31,9 @@ class Config:
     persistence: float = 0.3  # how much state is retained vs replaced by input
     drive: float = 0.02  # small random perturbation to prevent collapse
     weight_decay: float = 0.0001  # prevents weight explosion
+    topology: str = "von_neumann"  # von_neumann, moore, hex, random, small_world
+    num_neighbors: int = 4  # neighbor count for random topology
+    rewire_prob: float = 0.1  # rewiring probability for small_world
     seed: Optional[int] = None  # random seed (None = unseeded)
 
 
@@ -76,6 +79,7 @@ class World:
         # ── live metrics ──────────────────────────────────────
         self.self_scores = np.zeros(N, dtype=np.float32)
         self.pred_errors = np.zeros(N, dtype=np.float32)
+        self.phi_scores = np.zeros(N, dtype=np.float32)
         self.tick = 0
 
         # ── God Mode masks ────────────────────────────────────
@@ -90,23 +94,88 @@ class World:
             "p95_self": [],
             "std_self": [],
             "mean_err": [],
+            "mean_phi": [],
+            "max_phi": [],
         }
 
     # ── topology ──────────────────────────────────────────────
 
     def _build_neighbors(self) -> np.ndarray:
-        """4-connected neighbor indices on a toroidal grid."""
+        """Build neighbor index array based on configured topology."""
+        builders = {
+            "von_neumann": self._nbr_von_neumann,
+            "moore": self._nbr_moore,
+            "hex": self._nbr_hex,
+            "random": self._nbr_random,
+            "small_world": self._nbr_small_world,
+        }
+        builder = builders.get(self.cfg.topology)
+        if builder is None:
+            raise ValueError(f"Unknown topology: {self.cfg.topology}")
+        return builder()
+
+    def _nbr_von_neumann(self) -> np.ndarray:
+        """4-connected neighbors on a toroidal grid."""
         s = self.cfg.size
         g = np.arange(self.N, dtype=np.int32).reshape(s, s)
-        return np.stack(
-            [
-                np.roll(g, 1, axis=0),  # north
-                np.roll(g, -1, axis=1),  # east
-                np.roll(g, -1, axis=0),  # south
-                np.roll(g, 1, axis=1),  # west
-            ],
-            axis=-1,
-        ).reshape(self.N, 4)
+        return np.stack([
+            np.roll(g, 1, axis=0),
+            np.roll(g, -1, axis=0),
+            np.roll(g, -1, axis=1),
+            np.roll(g, 1, axis=1),
+        ], axis=-1).reshape(self.N, 4)
+
+    def _nbr_moore(self) -> np.ndarray:
+        """8-connected neighbors (includes diagonals)."""
+        s = self.cfg.size
+        g = np.arange(self.N, dtype=np.int32).reshape(s, s)
+        n = np.roll(g, 1, axis=0)
+        so = np.roll(g, -1, axis=0)
+        e = np.roll(g, -1, axis=1)
+        w = np.roll(g, 1, axis=1)
+        return np.stack([
+            n, so, e, w,
+            np.roll(n, -1, axis=1),   # NE
+            np.roll(n, 1, axis=1),    # NW
+            np.roll(so, -1, axis=1),  # SE
+            np.roll(so, 1, axis=1),   # SW
+        ], axis=-1).reshape(self.N, 8)
+
+    def _nbr_hex(self) -> np.ndarray:
+        """6-connected hexagonal neighbors (offset coordinates)."""
+        s = self.cfg.size
+        g = np.arange(self.N, dtype=np.int32).reshape(s, s)
+        n = np.roll(g, 1, axis=0)
+        so = np.roll(g, -1, axis=0)
+        e = np.roll(g, -1, axis=1)
+        w = np.roll(g, 1, axis=1)
+        even = np.zeros((s, s), dtype=bool)
+        even[0::2, :] = True
+        d1 = np.where(even, np.roll(n, 1, axis=1), np.roll(n, -1, axis=1))
+        d2 = np.where(even, np.roll(so, 1, axis=1), np.roll(so, -1, axis=1))
+        return np.stack([n, so, e, w, d1, d2], axis=-1).reshape(self.N, 6)
+
+    def _nbr_random(self) -> np.ndarray:
+        """k random neighbors per agent."""
+        k = self.cfg.num_neighbors
+        nbrs = np.zeros((self.N, k), dtype=np.int32)
+        for i in range(self.N):
+            choices = np.delete(np.arange(self.N, dtype=np.int32), i)
+            nbrs[i] = self.rng.choice(choices, size=k, replace=False)
+        return nbrs
+
+    def _nbr_small_world(self) -> np.ndarray:
+        """Von Neumann base with random rewiring (Watts-Strogatz style)."""
+        base = self._nbr_von_neumann()
+        p = self.cfg.rewire_prob
+        for i in range(self.N):
+            for j in range(base.shape[1]):
+                if self.rng.random() < p:
+                    new = self.rng.integers(0, self.N)
+                    while new == i:
+                        new = self.rng.integers(0, self.N)
+                    base[i, j] = int(new)
+        return base
 
     # ── simulation ────────────────────────────────────────────
 

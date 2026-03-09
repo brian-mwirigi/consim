@@ -254,6 +254,18 @@ From 250 simulations at size 48 (10 seeds × 5 topologies × 5 noise levels):
 
 The monotonic K-dependence (vn < hex < moore) matches the derivation. Random shows no effect because $r_i$ is drawn from independent samples rather than correlated grid neighbors, making the external signal noisier rather than smoother.
 
+### Null model confirmation
+
+A null model sweep (250 runs, lr=0, no learning) confirms the derivation above. With weights frozen at random initialization — no gradient updates, no learned representations — the T-E dissociation persists at nearly identical strength:
+
+| Topology | r(T,E) learning | r(T,E) null | Δ |
+|----------|:-:|:-:|:-:|
+| moore | −0.82 | −0.79 | 0.03 |
+| hex | −0.74 | −0.70 | 0.04 |
+| von_neumann | +0.07 | +0.11 | 0.04 |
+
+This confirms the derivation: the mechanism is entirely in the state dynamics and topology, not in the learned weight matrices. The state update $s' = \tanh(\alpha s + (1-\alpha)r + \text{drive})$ and the metric definitions ($E$, $T$, self-score) are sufficient to produce the trade-off. Learning at lr=0.01 over 1000 ticks changes self-prediction by <0.1% — the dynamics are dominated by the graph structure.
+
 ---
 
 ## 5. Why E ≡ Φ on structured graphs

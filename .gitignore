@@ -36,6 +36,9 @@ output/
 # Keep tracked data
 !emergence.gif
 !sweep_1250.csv
+!sweep_size12.csv
+!sweep_size48.csv
+!sweep_null.csv
 
 # Temp scripts
 analyze_sweep.py

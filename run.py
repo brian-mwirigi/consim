@@ -49,6 +49,8 @@ def main():
     p.add_argument("--sweep-seeds", type=str, default="1-10", help="seed range for sweep, e.g. 1-20 (default: 1-10)")
     p.add_argument("--sweep-topos", type=str, default="von_neumann,moore,hex",
                    help="topologies for sweep, comma-separated (default: von_neumann,moore,hex)")
+    p.add_argument("--sweep-noises", type=str, default="0.12",
+                   help="noise levels for sweep, comma-separated (default: 0.12)")
     p.add_argument("--sweep-csv", type=str, default="sweep_results.csv", help="output CSV for sweep (default: sweep_results.csv)")
     args = p.parse_args()
 
@@ -85,8 +87,11 @@ def main():
         seeds = list(range(seed_start, seed_end + 1))
         topos = [t.strip() for t in args.sweep_topos.split(",")]
 
+        noises = [float(n.strip()) for n in args.sweep_noises.split(",")]
+
         from analysis import run_sweep
-        print(f"  Sweep: {len(seeds)} seeds x {len(topos)} topologies = {len(seeds)*len(topos)} runs")
+        total_runs = len(seeds) * len(topos) * len(noises)
+        print(f"  Sweep: {len(seeds)} seeds x {len(topos)} topologies x {len(noises)} noise levels = {total_runs} runs")
         print(f"  {args.ticks} ticks each, output to {args.sweep_csv}")
         print()
         run_sweep(
@@ -95,7 +100,7 @@ def main():
             ticks=args.ticks,
             size=args.size,
             dim=args.dim,
-            noise=args.noise,
+            noises=noises,
             lr=args.lr,
             persistence=args.persistence,
             output_csv=args.sweep_csv,

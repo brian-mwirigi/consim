@@ -92,62 +92,66 @@ def run_sweep(
     ticks: int = 2000,
     size: int = 24,
     dim: int = 8,
-    noise: float = 0.12,
+    noises: List[float] = None,
     lr: float = 0.003,
     persistence: float = 0.3,
     output_csv: str = "sweep_results.csv",
     sample_interval: int = 500,
 ) -> List[Dict[str, Any]]:
     """
-    Run a parameter sweep across seeds and topologies.
+    Run a parameter sweep across seeds, topologies, and noise levels.
 
     Saves results to CSV and returns them as a list of dicts.
     """
+    if noises is None:
+        noises = [0.12]
     results = []
-    total = len(seeds) * len(topologies)
+    total = len(seeds) * len(topologies) * len(noises)
     done = 0
 
-    for topo in topologies:
-        for seed in seeds:
-            cfg = Config(
-                size=size, dim=dim, noise=noise, lr=lr,
-                persistence=persistence, topology=topo, seed=seed,
-            )
-            world = World(cfg)
+    for noise in noises:
+        for topo in topologies:
+            for seed in seeds:
+                cfg = Config(
+                    size=size, dim=dim, noise=noise, lr=lr,
+                    persistence=persistence, topology=topo, seed=seed,
+                )
+                world = World(cfg)
 
-            for t in range(1, ticks + 1):
-                world.step()
+                for t in range(1, ticks + 1):
+                    world.step()
 
-                if t % sample_interval == 0 or t == ticks:
-                    ss = world.self_scores
-                    row = {
-                        "topology": topo,
-                        "seed": seed,
-                        "tick": t,
-                        "size": size,
-                        "mean_self": round(float(ss.mean()), 6),
-                        "max_self": round(float(ss.max()), 6),
-                        "p95_self": round(float(np.percentile(ss, 95)), 6),
-                        "std_self": round(float(ss.std()), 6),
-                        "mean_phi": round(float(world.phi_scores.mean()), 6),
-                        "max_phi": round(float(world.phi_scores.max()), 6),
-                        "mean_err": round(float(world.pred_errors.mean()), 6),
-                        "morans_i": round(morans_i(world), 6),
-                        "entropy": round(state_entropy(world), 4),
-                        "phi_entropy": round(phi_entropy(world), 4),
-                        "clusters_05": cluster_count(world, 0.5),
-                        "clusters_07": cluster_count(world, 0.7),
-                    }
-                    results.append(row)
+                    if t % sample_interval == 0 or t == ticks:
+                        ss = world.self_scores
+                        row = {
+                            "topology": topo,
+                            "seed": seed,
+                            "noise": noise,
+                            "tick": t,
+                            "size": size,
+                            "mean_self": round(float(ss.mean()), 6),
+                            "max_self": round(float(ss.max()), 6),
+                            "p95_self": round(float(np.percentile(ss, 95)), 6),
+                            "std_self": round(float(ss.std()), 6),
+                            "mean_phi": round(float(world.phi_scores.mean()), 6),
+                            "max_phi": round(float(world.phi_scores.max()), 6),
+                            "mean_err": round(float(world.pred_errors.mean()), 6),
+                            "morans_i": round(morans_i(world), 6),
+                            "entropy": round(state_entropy(world), 4),
+                            "phi_entropy": round(phi_entropy(world), 4),
+                            "clusters_05": cluster_count(world, 0.5),
+                            "clusters_07": cluster_count(world, 0.7),
+                        }
+                        results.append(row)
 
-            done += 1
-            ss = world.self_scores
-            sys.stdout.write(
-                f"\r  [{done}/{total}] {topo:15s} seed={seed:<4d} "
-                f"mean_self={ss.mean():+.4f}  max_self={ss.max():+.4f}  "
-                f"phi={world.phi_scores.mean():.4f}  moran={morans_i(world):+.4f}"
-            )
-            sys.stdout.flush()
+                done += 1
+                ss = world.self_scores
+                sys.stdout.write(
+                    f"\r  [{done}/{total}] noise={noise:.2f} {topo:15s} seed={seed:<4d} "
+                    f"mean_self={ss.mean():+.4f}  max_self={ss.max():+.4f}  "
+                    f"phi={world.phi_scores.mean():.4f}  moran={morans_i(world):+.4f}"
+                )
+                sys.stdout.flush()
 
     print()
 

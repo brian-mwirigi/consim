@@ -30,5 +30,9 @@ desktop.ini
 results/
 output/
 
-# Keep the emergence GIF tracked
+# Keep tracked data
 !emergence.gif
+!sweep_1250.csv
+
+# Temp scripts
+analyze_sweep.py

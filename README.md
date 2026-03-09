@@ -69,7 +69,7 @@ python run.py --sweep --sweep-seeds 1-20 --sweep-topos von_neumann,moore,hex --t
 python run.py --sweep --sweep-seeds 1-5 --sweep-topos von_neumann --ticks 1000 --size 24
 ```
 
-Outputs a CSV with per-tick samples of: mean/max/p95 self-model, mean/max Phi, prediction error, Moran's I (spatial autocorrelation), Shannon entropy, and cluster counts at two thresholds. This is research-grade data.
+Outputs a CSV with per-tick samples of: mean/max/p95 self-model, mean/max Phi, prediction error, Moran's I (spatial autocorrelation), Shannon entropy, and cluster counts at two thresholds.
 
 ## Recording
 
@@ -131,7 +131,7 @@ Phi is approximated per agent by comparing the prediction residual of the full n
 
 ## Background
 
-This project implements the cellular automaton experiment proposed in [*Consciousness as a Coherence-Inducing Operator in a Landscape of Autonomous Micro-Agents*](https://arxiv.org/abs/2512.01081) (2025). The paper argues that consciousness emerges not from centralized modeling but from lossy predictive communication between local observers. It blueprints the experiment. Nobody built it. This is the build.
+Loosely inspired by [*Consciousness as a Coherence-Inducing Operator in a Landscape of Autonomous Micro-Agents*](https://arxiv.org/abs/2512.01081) (2025), which proposes that consciousness-like properties could emerge from lossy predictive communication between local observers. This project is not a faithful implementation of that paper. It borrows the core idea and builds a sandbox around it.
 
 Also draws on predictive processing (Friston), integrated information theory (Tononi), and cellular automata (Conway, Wolfram). The update rule is a predictive coding network where your neighbors replace the layer hierarchy.
 
@@ -170,6 +170,12 @@ Past 10,000 ticks I see three behaviors: plateau, oscillation, and slow divergen
 The isolation question: cut communication to a high-scorer, and sometimes the self-model holds without any input for a long time. I would like to know why. If you figure it out, open an issue.
 
 Phi and self-model score don't always correlate. Some agents show high information integration with low self-prediction. The reverse also occurs. This bothers me because the theories predict they should be related.
+
+## Results
+
+I ran 1,250 simulations across 50 seeds, 5 topologies, and 5 noise levels. Full writeup with tables: [FINDINGS.md](FINDINGS.md)
+
+Short version: more neighbors produces slightly higher self-prediction. Self-prediction is noise-robust but Phi is not. Phi and self-model score are not measuring the same thing. Initial conditions matter more than parameter choices. I can't explain most of it.
 
 ## About
 

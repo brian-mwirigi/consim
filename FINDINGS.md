@@ -27,7 +27,7 @@ python run.py --sweep --sweep-seeds 1-50 \
 | 0.20 | 0.199 | 0.190 | 0.194 |
 | 0.30 | 0.201 | 0.191 | 0.193 |
 
-The seeds that start below average at low noise end up above average at high noise. The seed that starts above average drops to mediocre. Noise doesn't just add randomness. It reverses the hierarchy of which initial conditions succeed.
+The seeds that start below average at low noise end up above average at high noise. The seed that starts above average drops to mediocre. Noise doesn't add randomness rather it reverses the hierarchy of which initial conditions succeed.
 
 This happens within individual runs too. Seed 4 on moore at noise=0.30: at tick 500 it's losing to seed 22 by 0.054. By tick 1000 it's winning by 0.047. A gap reversal of 0.101 in 500 ticks. The noise-adapted dynamics take hundreds of ticks to manifest.
 
@@ -127,7 +127,7 @@ Seed 2 on von_neumann improves +0.07 in mean_self between tick 500 and tick 1000
 
 ## Summary
 
-The headline finding is the crossover. Noise doesn't just add variance — it changes which initial conditions win and which lose. Seeds that underperform in clean environments overtake seeds that overperform in clean environments. This reversal takes hundreds of ticks to manifest and only works on spatially structured grids.
+The headline finding is the crossover. Noise doesn't just add variance rather it changes which initial conditions win and which lose. Seeds that underperform in clean environments overtake seeds that overperform in clean environments. This reversal takes hundreds of ticks to manifest and only works on spatially structured grids.
 
 The other findings cluster around a single theme: Phi (information integration) and self-prediction are not measuring the same thing, and the relationship between them depends on network structure in specific, reproducible ways. Random graphs show clean dissociation. Grid topologies show anti-correlation. Small_world shortcuts protect one without touching the other.
 

@@ -162,17 +162,26 @@ def run_live(
     ax_s.set_xlim(0, 300)
     ax_s.set_ylim(-0.5, 1.0)
 
-    # ── prediction error curve (bottom-right) ─────────────────
+    # ── prediction error / phi curves (bottom-right) ───────────
     ax_e = fig.add_subplot(gs[1, 1])
     ax_e.set_title(
-        "prediction error",
+        "prediction error / phi",
         color=FG_MID,
         fontsize=10,
         fontfamily="monospace",
     )
     ax_e.set_xlabel("tick", color=FG_DIM, fontsize=9)
-    ax_e.set_ylabel("\u2016error\u2016", color=FG_DIM, fontsize=9)
-    (ln_err,) = ax_e.plot([], [], color=RED, lw=1.4)
+    ax_e.set_ylabel("\u2016error\u2016 / \u03a6", color=FG_DIM, fontsize=9)
+    (ln_err,) = ax_e.plot([], [], color=RED, lw=1.4, label="error")
+    (ln_phi_mean,) = ax_e.plot([], [], color="#9b59b6", lw=1.4, label="mean \u03a6")
+    (ln_phi_max,) = ax_e.plot([], [], color="#8e44ad", lw=0.8, alpha=0.6, label="max \u03a6")
+    ax_e.legend(
+        fontsize=7,
+        loc="upper right",
+        facecolor=BG,
+        edgecolor="#333",
+        labelcolor=FG_DIM,
+    )
     ax_e.set_xlim(0, 300)
     ax_e.set_ylim(0, 1.0)
 
@@ -187,6 +196,7 @@ def run_live(
 
     # ── God Mode event handlers ───────────────────────────
     _mode = ["observe"]  # mutable for closure
+    _view = ["self"]  # "self" or "phi" heatmap toggle
 
     def _on_key(event):
         key = event.key
@@ -198,6 +208,10 @@ def run_live(
             _mode[0] = "inject"
         elif key == "escape":
             _mode[0] = "observe"
+        elif key == "p":
+            _view[0] = "phi" if _view[0] == "self" else "self"
+            title = "self-model score" if _view[0] == "self" else "\u03a6 integrated information"
+            ax_g.set_title(title, color=FG_MID, fontsize=10, fontfamily="monospace", pad=8)
         labels = {"kill": "[K]ILL", "isolate": "[I]SOLATE", "inject": "IN[J]ECT"}
         if _mode[0] == "observe":
             mode_text.set_text("")
@@ -225,8 +239,11 @@ def run_live(
         for _ in range(steps_per_frame):
             world.step()
 
-        # grid
-        im.set_data(world.grid_scores())
+        # grid (toggle between self-model and phi)
+        if _view[0] == "self":
+            im.set_data(world.grid_scores())
+        else:
+            im.set_data(world.grid_phi())
 
         # curves
         h = world.history
@@ -235,6 +252,8 @@ def run_live(
         ln_p95.set_data(t, h["p95_self"])
         ln_max.set_data(t, h["max_self"])
         ln_err.set_data(t, h["mean_err"])
+        ln_phi_mean.set_data(t, h["mean_phi"])
+        ln_phi_max.set_data(t, h["max_phi"])
 
         # auto-scroll x
         if t and t[-1] > ax_s.get_xlim()[1] * 0.85:
@@ -269,7 +288,7 @@ def run_live(
             iso_scat.set_offsets(np.empty((0, 2)))
 
         return [
-            im, ln_mean, ln_p95, ln_max, ln_err,
+            im, ln_mean, ln_p95, ln_max, ln_err, ln_phi_mean, ln_phi_max,
             tick_lbl, stats_lbl, dead_scat, iso_scat, mode_text,
         ]
 

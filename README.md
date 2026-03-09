@@ -101,7 +101,7 @@ python run.py --record long_run.gif --record-ticks 5000 --fps 30
 
 ## Honest Assessment
 
-**What's actually good here:**
+**What's  good here:**
 
 The replication. Most people who find an exciting result don't immediately try to kill it. You did, and when it died, you wrote it up honestly. That's the most valuable thing in the repo — not the simulation itself, but the demonstrated willingness to report a null replication of your own headline finding. That's rare.
 

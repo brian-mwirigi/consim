@@ -125,29 +125,95 @@ Seed 2 on von_neumann improves +0.07 in mean_self between tick 500 and tick 1000
 
 ---
 
+---
+
+## Replication at size 12
+
+Ran the same 1,250 simulations at 12×12 (144 agents) to test whether the headline crossover finding is size-invariant.
+
+```bash
+python run.py --sweep --sweep-seeds 1-50 \
+  --sweep-topos von_neumann,moore,hex,random,small_world \
+  --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
+  --ticks 1000 --size 12 --sweep-csv sweep_size12.csv
+```
+
+### The crossover does not replicate
+
+At size 12, 9/50 seeds are universal noise beneficiaries — but only 3 overlap with the size-24 set of 10. The other 7 are completely different seeds.
+
+| Size | Universal beneficiaries | Overlap with size-24 set |
+|------|:-:|:-:|
+| 24 | 10/50: {4, 38, 39, 50, 5, 40, 3, 9, 16, 45} | — |
+| 12 | 9/50: {16, 19, 30, 21, 28, 7, 44, 3, 39} | 3/10 |
+
+Tracking the size-24 beneficiary seeds at size 12, the gap reverses direction:
+
+| Noise | Size 24 gap (ben − victim) | Size 12 gap (ben − victim) |
+|-------|:-:|:-:|
+| 0.04 | −0.027 | **+0.023** |
+| 0.12 | −0.002 | +0.010 |
+| 0.30 | **+0.008** | **−0.006** |
+
+At size 24, the beneficiaries start below the victim and cross over. At size 12, it's backwards — they start ahead and fall behind. The crossover flips. This means the finding is a seed×size interaction effect, not an intrinsic property of certain initial conditions.
+
+### What does replicate
+
+The structural effects are robust across sizes:
+
+**Moore noise amplification** — replicates. Moore `mean_self` rises monotonically with noise at both sizes.
+
+| Noise | Size 12 moore | Size 24 moore |
+|-------|:-:|:-:|
+| 0.04 | 0.184 | 0.188 |
+| 0.12 | 0.203 | 0.198 |
+| 0.30 | 0.215 | 0.206 |
+
+**Random noise immunity** — replicates. `mean_self` stays flat (~0.183±0.001) at both sizes across all noise levels. Phi is also flat.
+
+**Small-world Phi boost** — replicates. At both sizes, small_world shortcuts increase Phi relative to von_neumann while leaving self-prediction unchanged. The boost grows with noise (size 12: +0.013 to +0.040; size 24: +0.015 to +0.044).
+
+**Universal beneficiary/victim existence** — replicates as a phenomenon. Both sizes produce ~9–10 seeds that benefit from noise everywhere and ~1 seed that is hurt everywhere. But WHICH seeds fill those roles changes with grid size.
+
+---
+
 ## Summary
 
-The headline finding is the crossover. Noise doesn't just add variance — it changes which initial conditions win and which lose. Seeds that underperform in clean environments overtake seeds that overperform in clean environments. This reversal takes hundreds of ticks to manifest and only works on spatially structured grids.
+The headline crossover from the original analysis is real at size 24 but does not generalize to different grid sizes. Which seeds benefit from noise and which are hurt is an interaction between initial conditions and grid geometry, not an intrinsic property of the seed.
 
-The other findings cluster around a single theme: Phi (information integration) and self-prediction are not measuring the same thing, and the relationship between them depends on network structure in specific, reproducible ways. Random graphs show clean dissociation. Grid topologies show anti-correlation. Small_world shortcuts protect one without touching the other.
+The robust, replicable findings are structural:
+- Moore noise amplification (noise helps self-prediction on high-connectivity grids)
+- Random topology fixed point (noise-immune across all metrics)
+- Small-world Phi dissociation (shortcuts boost integration without touching behavior)
+- The existence of universal noise beneficiaries/victims (the phenomenon replicates, the identities don't)
+
+The Phi-vs-self-prediction dissociation is the most portable result. It holds across sizes, topologies, and noise levels.
 
 ## What I can't say
 
-- What structural property of initial conditions makes a seed a noise-beneficiary vs a noise-victim.
-- Why noise helps self-prediction on high-connectivity grids. I have a candidate clue — noise forces clustering (Moran's I goes up), and clustering helps on moore. But seed 24 shows dispersion working just as well.
-- Why random topology is in a fixed point that 7.5x noise variation cannot perturb.
+- Why the crossover is size-dependent. The seed×size interaction is clear but the mechanism is not.
+- What structural property of initial conditions makes a seed a noise-beneficiary at a given size.
+- Why noise helps self-prediction on high-connectivity grids.
+- Why random topology is in a fixed point that 7.5× noise variation cannot perturb.
 - Why the same seed ranks #1 in one topology and #42 in another.
-- Whether any of this scales to larger grids or longer runs.
 - Whether any of this has anything to do with consciousness.
 
 ## Reproduce
 
 ```bash
 pip install numpy matplotlib Pillow
+
+# Original sweep (size 24)
 python run.py --sweep --sweep-seeds 1-50 \
   --sweep-topos von_neumann,moore,hex,random,small_world \
   --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
-  --ticks 1000 --size 24
+  --ticks 1000 --size 24 --sweep-csv sweep_1250.csv
+
+# Replication sweep (size 12)
+python run.py --sweep --sweep-seeds 1-50 \
+  --sweep-topos von_neumann,moore,hex,random,small_world \
+  --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
+  --ticks 1000 --size 12 --sweep-csv sweep_size12.csv
 ```
 
-Raw data: [sweep_1250.csv](sweep_1250.csv)
+Raw data: [sweep_1250.csv](sweep_1250.csv), [sweep_size12.csv](sweep_size12.csv)

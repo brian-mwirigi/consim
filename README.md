@@ -131,7 +131,9 @@ Phi is approximated per agent by comparing the prediction residual of the full n
 
 ## Background
 
-Draws on predictive processing (Friston), integrated information theory (Tononi), and cellular automata (Conway, Wolfram). Think of it as a predictive coding network where your neighbors replace the layer hierarchy.
+This project implements the cellular automaton experiment proposed in [*Consciousness as a Coherence-Inducing Operator in a Landscape of Autonomous Micro-Agents*](https://arxiv.org/abs/2512.01081) (2025). The paper argues that consciousness emerges not from centralized modeling but from lossy predictive communication between local observers. It blueprints the experiment. Nobody built it. This is the build.
+
+Also draws on predictive processing (Friston), integrated information theory (Tononi), and cellular automata (Conway, Wolfram). The update rule is a predictive coding network where your neighbors replace the layer hierarchy.
 
 ## Analysis tools
 

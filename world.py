@@ -191,7 +191,7 @@ class World:
         # 2  LOSSY CHANNEL: add Gaussian noise
         noisy = msg + self.rng.standard_normal(msg.shape).astype(np.float32) * c.noise
 
-        # 3  RECEIVE: each agent averages messages from its 4 neighbors
+        # 3  RECEIVE: each agent averages messages from its neighbors
         recv = noisy[self._nbr].mean(axis=1)  # (N, D)
 
         # ── God Mode: isolated agents receive no neighbor signals ──
@@ -219,9 +219,8 @@ class World:
             self.self_scores[self.dead] = 0.0
 
         # 6  LEARN: update W to reduce prediction error on neighbors
-        #    Loss = ‖mᵢ − sⱼᵗ⁺¹‖² averaged over the 4 neighbors j
-        nbr_new = self.states[self._nbr]  # (N, 4, D)
-        err = msg[:, None, :] - nbr_new  # (N, 4, D)
+        nbr_new = self.states[self._nbr]  # (N, K, D)
+        err = msg[:, None, :] - nbr_new  # (N, K, D)
         avg_err = err.mean(axis=1)  # (N, D)
         self.pred_errors = np.linalg.norm(avg_err, axis=1)
 
@@ -239,7 +238,10 @@ class World:
             self.W[self.dead] = 0.0
             self.pred_errors[self.dead] = 0.0
 
-        # 7  RECORD
+        # 7  PHI: approximate integrated information per agent
+        self._compute_phi(old, msg)
+
+        # 8  RECORD
         self.tick += 1
         h = self.history
         h["tick"].append(self.tick)
@@ -248,6 +250,38 @@ class World:
         h["p95_self"].append(float(np.percentile(self.self_scores, 95)))
         h["std_self"].append(float(self.self_scores.std()))
         h["mean_err"].append(float(self.pred_errors.mean()))
+        h["mean_phi"].append(float(self.phi_scores.mean()))
+        h["max_phi"].append(float(self.phi_scores.max()))
+
+    def _compute_phi(self, old_states: np.ndarray, messages: np.ndarray) -> None:
+        """
+        Approximate integrated information (Phi) per agent.
+
+        For each agent, measure how much its state transition depends on
+        the integrated whole of its neighborhood vs. the parts independently.
+        """
+        nbr_states_old = old_states[self._nbr]  # (N, K, D)
+        K = self._nbr.shape[1]
+
+        # joint: how well does the full neighborhood predict the agent's change?
+        delta = self.states - old_states  # (N, D)
+        nbr_mean = nbr_states_old.mean(axis=1)  # (N, D)
+        joint_resid = delta - nbr_mean  # (N, D)
+        joint_var = np.sum(joint_resid ** 2, axis=1)  # (N,)
+
+        # parts: average of each single-neighbor prediction residuals
+        parts_var = np.zeros(self.N, dtype=np.float32)
+        for k in range(K):
+            single_resid = delta - nbr_states_old[:, k, :]  # (N, D)
+            parts_var += np.sum(single_resid ** 2, axis=1)
+        parts_var /= K
+
+        # phi = how much better the whole predicts than the average part
+        raw_phi = parts_var - joint_var
+        self.phi_scores = np.maximum(raw_phi / (parts_var + 1e-8), 0.0).astype(np.float32)
+
+        if np.any(self.dead):
+            self.phi_scores[self.dead] = 0.0
 
     # ── God Mode interventions ────────────────────────────────
 
@@ -294,6 +328,7 @@ class World:
             "W": self.W.copy(),
             "self_scores": self.self_scores.copy(),
             "pred_errors": self.pred_errors.copy(),
+            "phi_scores": self.phi_scores.copy(),
             "config": vars(self.cfg),
         }
 
@@ -304,3 +339,7 @@ class World:
     def grid_errors(self) -> np.ndarray:
         """Prediction errors reshaped to the 2D grid."""
         return self.pred_errors.reshape(self.cfg.size, self.cfg.size)
+
+    def grid_phi(self) -> np.ndarray:
+        """Phi scores reshaped to the 2D grid."""
+        return self.phi_scores.reshape(self.cfg.size, self.cfg.size)

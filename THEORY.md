@@ -14,9 +14,9 @@ Each agent $i$ has state $s_i \in \mathbb{R}^D$ and weights $W_i \in \mathbb{R}^
 2. **Noise:** $\tilde{m}_i = m_i + \varepsilon_i, \quad \varepsilon_i \sim \mathcal{N}(0, \sigma^2 I)$
 3. **Receive:** $r_i = \frac{1}{K} \sum_{j \in \mathcal{N}(i)} \tilde{m}_j$
 4. **Update:** $s_i \leftarrow \tanh\!\big(\alpha \, s_i + (1 - \alpha) \, r_i + \text{drive}\big)$
-5. **Learn:** $W_i \leftarrow W_i - \eta \, \nabla \|m_i - s_j\|^2$
+5. **Learn:** $W_i \leftarrow W_i - \eta \, \nabla \frac{1}{K}\sum_{j \in \mathcal{N}(i)} \|m_i - s_j'\|^2$
 
-where $\alpha$ is persistence, $\eta$ is learning rate, and drive $\sim \mathcal{N}(0, \delta^2 I)$.
+where $\alpha$ is persistence, $\eta$ is learning rate, $s_j'$ is the neighbor's **new** state, and drive $\sim \mathcal{N}(0, \delta^2 I)$.
 
 ### The received signal on a random graph
 
@@ -86,7 +86,7 @@ $$\text{Var}\!\left(\frac{1}{K}\sum_{j} m_j\right) = \frac{\sigma_m^2}{K}\left(1
 where $\rho$ is the average pairwise correlation between neighbor messages.
 
 - **Random graph:** neighbors are independent, $\rho \approx 0$. Variance $\approx \sigma_m^2 / K$. Full cancellation.
-- **von_neumann (K=4):** each pair of adjacent neighbors shares 2 common neighbors. High $\rho$. Effective sample size $K_{\text{eff}} = K / (1 + (K-1)\rho) < K$.
+- **von_neumann (K=4):** perpendicular neighbor pairs (e.g. N and E) share 2 common neighbors; opposite pairs (N and S) share only agent $i$. High average $\rho$. Effective sample size $K_{\text{eff}} = K / (1 + (K-1)\rho) < K$.
 - **Moore (K=8):** more neighbors, but crucially, the diagonal neighbors do NOT share neighbors with the cardinal neighbors as heavily. Lower average $\rho$ per pair, AND higher $K$. Both effects improve cancellation.
 - **Hex (K=6):** falls between von_neumann and moore.
 
@@ -97,8 +97,8 @@ This predicts a noise-tolerance ordering: random > moore > hex > von_neumann. Wh
 | random | 4 | +0.000 |
 | moore | 8 | +0.018 |
 | hex | 6 | +0.015 |
-| von_neumann | 4 | +0.006 |
-| small_world | 4 | +0.001 |
+| von_neumann | 4 | +0.001 |
+| small_world | 4 | +0.002 |
 
 Moore and hex show positive noise effects (noise *helps*, not just "doesn't hurt") — the derivation above explains why noise doesn't destroy performance, but the amplification requires a second mechanism.
 
@@ -124,8 +124,8 @@ Random graphs don't benefit because neighbors are already decorrelated (no spati
 Small-world starts from von_neumann (K=4 grid neighbors) and rewires each edge with probability $p=0.1$. Rewired edges connect to random agents anywhere on the grid.
 
 Empirically, across all noise levels and both grid sizes:
-- Self-prediction: small_world ≈ von_neumann (within 0.001)
-- Phi: small_world > von_neumann (by 0.015 to 0.044, growing with noise)
+- Self-prediction: small_world ≈ von_neumann (within 0.002 at size 24, within 0.011 at size 12)
+- Phi: small_world > von_neumann (by 0.013 to 0.044, growing with noise)
 
 ### Why self-prediction is unchanged
 
@@ -133,9 +133,9 @@ Self-prediction score is $\cos(m_i, s_i')$ — the cosine similarity between the
 
 ### Why Phi increases
 
-The Phi approximation compares:
-- **Joint residual:** $\|s_i' - \bar{s}_{\mathcal{N}(i)}\|^2$ — how well the neighborhood mean predicts the state change
-- **Parts residual:** $\frac{1}{K}\sum_k \|s_i' - s_{j_k}\|^2$ — how well each individual neighbor predicts it
+The Phi approximation compares (using state change $\Delta s_i = s_i' - s_i$ and **old** neighbor states $s_j^{\text{old}}$):
+- **Joint residual:** $\|\Delta s_i - \bar{s}_{\mathcal{N}(i)}^{\text{old}}\|^2$ — how well the old neighborhood mean predicts the state change
+- **Parts residual:** $\frac{1}{K}\sum_k \|\Delta s_i - s_{j_k}^{\text{old}}\|^2$ — how well each old individual neighbor predicts it
 
 Phi $\propto$ (parts residual − joint residual) / parts residual.
 

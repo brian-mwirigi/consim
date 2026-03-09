@@ -199,9 +199,9 @@ Phi and self-model score don't always correlate. Some agents show high informati
 
 ## Results
 
-I ran 1,250 simulations across 50 seeds, 5 topologies, and 5 noise levels. Full writeup with tables: [FINDINGS.md](FINDINGS.md)
+I ran 1,250 simulations across 50 seeds, 5 topologies, and 5 noise levels. Full writeup with tables: [FINDINGS.md](FINDINGS.md). Analytical derivations for the three replicating effects: [THEORY.md](THEORY.md)
 
-Short version: more neighbors produces slightly higher self-prediction. Self-prediction is noise-robust but Phi is not. Phi and self-model score are not measuring the same thing. Initial conditions matter more than parameter choices. I can't explain most of it.
+Short version: more neighbors produces slightly higher self-prediction. Self-prediction is noise-robust but Phi is not (except on random graphs, where both are noise-immune). Phi and self-model score are not measuring the same thing. Initial conditions matter more than parameter choices.
 
 ## About
 

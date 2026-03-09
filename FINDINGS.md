@@ -61,9 +61,9 @@ Random is completely noise-immune. Not just Phi — everything:
 
 | Noise | mean_self | p95_self | max_self | std_self | mean_phi | max_phi |
 |-------|:-:|:-:|:-:|:-:|:-:|:-:|
-| 0.04 | 0.182 | 0.698 | 0.904 | 0.340 | 0.347 | 0.821 |
-| 0.12 | 0.183 | 0.695 | 0.906 | 0.338 | 0.345 | 0.822 |
-| 0.30 | 0.182 | 0.697 | 0.905 | 0.339 | 0.343 | 0.827 |
+| 0.04 | 0.182 | 0.697 | 0.904 | 0.340 | 0.347 | 0.821 |
+| 0.12 | 0.183 | 0.695 | 0.905 | 0.338 | 0.345 | 0.822 |
+| 0.30 | 0.182 | 0.697 | 0.904 | 0.339 | 0.343 | 0.827 |
 
 Every metric is flat within 0.002 across a 7.5x noise range. The one exception: max_phi goes slightly UP (0.821 to 0.827). Noise concentrates integration into fewer, stronger peaks on random graphs while leaving everything else untouched.
 
@@ -193,10 +193,10 @@ The Phi-vs-self-prediction dissociation is the most portable result. It holds ac
 
 - Why the crossover is size-dependent. The seed×size interaction is clear but the mechanism is not.
 - What structural property of initial conditions makes a seed a noise-beneficiary at a given size.
-- Why noise helps self-prediction on high-connectivity grids.
-- Why random topology is in a fixed point that 7.5× noise variation cannot perturb.
 - Why the same seed ranks #1 in one topology and #42 in another.
 - Whether any of this has anything to do with consciousness.
+
+See [THEORY.md](THEORY.md) for analytical explanations of the random fixed point, moore noise amplification, and small-world Phi dissociation.
 
 ## Reproduce
 

@@ -12,38 +12,73 @@ It goes up.
 
 Not always. Not every agent. But run this with seed 7 and wait. Around tick 800, one agent hits 0.94 on self-prediction. I have run this dozens of times. Seed 7 does it reliably. Seed 12 never does. Same code, same parameters, different initial random weights. I don't know why.
 
+I also approximate Phi (integrated information) per agent. Phi measures how much an agent's state transition depends on the integrated whole of its neighborhood versus each neighbor independently. Some agents show high Phi and high self-prediction simultaneously. Some show one without the other.
+
 I'm putting this out because I want other people to look at it.
 
-## Run it
+## Setup
 
 ```bash
 pip install numpy matplotlib Pillow
 python run.py
 ```
 
-The grid shows up. Dark cells are agents with no self-prediction. When a cell goes bright, that agent learned to predict itself as a side effect of predicting others. Watch where the bright spots show up and whether they form clusters.
+## Topologies
+
+The grid topology changes everything. Five are implemented:
+
+```bash
+python run.py --topology von_neumann   # 4 neighbors (default)
+python run.py --topology moore         # 8 neighbors (diagonals)
+python run.py --topology hex           # 6 neighbors (hexagonal)
+python run.py --topology random        # k random neighbors
+python run.py --topology small_world   # von_neumann + random rewiring
+```
+
+Moore and hex produce different clustering patterns. Random graphs produce different dynamics entirely. small_world with high rewire probability sometimes produces long-range self-model correlations that grid topologies never show. These are observations, not explanations.
+
+## Visualization
+
+Left panel is a heatmap of self-model scores. Dark cells have low self-prediction, bright cells have high. Top right shows self-model curves over time. Bottom right shows prediction error and Phi curves.
+
+Press `P` to toggle the heatmap between self-model score and Phi. The spatial distribution of Phi looks different from self-model score in ways I have not been able to characterize.
 
 ## Interventions
 
-You can mess with the grid while it runs:
+You can interact with the grid during live runs:
 
-| Key | What happens |
-|-----|-------------|
-| `K` then click | Kill that agent permanently |
-| `I` then click | Cut that agent's communication (toggle on/off) |
-| `J` then click | Copy the best agent into that cell |
-| `Esc` | Go back to watching |
+| Key | Mode | Effect |
+|-----|------|--------|
+| `K` | Kill | Click to permanently zero an agent |
+| `I` | Isolate | Click to cut communication (toggles) |
+| `J` | Inject | Click to copy the best agent into a cell |
+| `P` | View | Toggle heatmap between self-model and Phi |
+| `Esc` | Off | Stop intervening |
 
-The isolation one is what keeps me up. Some agents hold their self-model score for 300+ ticks after you cut their input. Others fall apart in under 10. I looked at the weights of both types. They look the same to me. I don't know what separates them.
+Killing an agent collapses it. Some neighbors compensate, some degrade. Isolating a high-scorer sometimes preserves its self-model for hundreds of ticks and sometimes collapses it within ten. I have no explanation for the difference.
 
-## Record a GIF
+## Parameter sweep
+
+Run systematic experiments across seeds and topologies:
+
+```bash
+# Sweep seeds 1-20 across three topologies, 2000 ticks each
+python run.py --sweep --sweep-seeds 1-20 --sweep-topos von_neumann,moore,hex --ticks 2000
+
+# Smaller sweep
+python run.py --sweep --sweep-seeds 1-5 --sweep-topos von_neumann --ticks 1000 --size 24
+```
+
+Outputs a CSV with per-tick samples of: mean/max/p95 self-model, mean/max Phi, prediction error, Moran's I (spatial autocorrelation), Shannon entropy, and cluster counts at two thresholds. This is research-grade data.
+
+## Recording
 
 ```bash
 python run.py --record emergence.gif --seed 7
 python run.py --record long_run.gif --record-ticks 5000 --fps 30
 ```
 
-## Flags
+## All flags
 
 | Flag | Default | |
 |------|---------|--|
@@ -52,6 +87,10 @@ python run.py --record long_run.gif --record-ticks 5000 --fps 30
 | `--noise` | 0.12 | Message noise |
 | `--lr` | 0.003 | Learning rate |
 | `--persistence` | 0.3 | How much old state survives each tick |
+| `--drive` | 0.02 | Random perturbation strength |
+| `--topology` | von_neumann | von_neumann, moore, hex, random, small_world |
+| `--num-neighbors` | 4 | Neighbor count for random topology |
+| `--rewire-prob` | 0.1 | Rewiring probability for small_world |
 | `--seed` | None | Random seed |
 | `--headless` | off | No window |
 | `--ticks` | 5000 | Headless tick count |
@@ -59,14 +98,20 @@ python run.py --record long_run.gif --record-ticks 5000 --fps 30
 | `--record` | None | Save grid GIF |
 | `--record-ticks` | 2000 | Ticks to record |
 | `--fps` | 24 | GIF speed |
+| `--sweep` | off | Run parameter sweep |
+| `--sweep-seeds` | 1-10 | Seed range for sweep |
+| `--sweep-topos` | von_neumann,moore,hex | Topologies for sweep |
+| `--sweep-csv` | sweep_results.csv | Output CSV path |
 
-## Load a saved run
+## Loading saved runs
 
 ```python
 import numpy as np
 data = np.load("results.npz")
 print(data["history_mean_self"][-1])
+print(data["history_mean_phi"][-1])
 print(data["self_scores"].reshape(48, 48))
+print(data["phi_scores"].reshape(48, 48))
 ```
 
 ## The math
@@ -74,26 +119,56 @@ print(data["self_scores"].reshape(48, 48))
 Every agent has state `s` in R^8 and weights `W` in R^(8x8).
 
 Each tick:
-1. Broadcast `m = tanh(W * s)` to four neighbors
-2. Noise gets added to every message
-3. Average what you receive
-4. New state = tanh(persistence * old + (1 - persistence) * received + small perturbation)
-5. Update W by gradient descent on how well m predicted neighbor states
+1. Broadcast `m = tanh(W * s)` to neighbors
+2. Messages get Gaussian noise added
+3. Average incoming messages
+4. New state = tanh(persistence * old_state + (1 - persistence) * received + small_noise)
+5. Update W by gradient descent on prediction error against neighbor states
 
-Self-model score = cosine similarity between m and the new state. Measured, not trained.
+Self-model score = cosine similarity between broadcast message and new state. Not in the gradient.
 
-Built on ideas from predictive processing (Friston), integrated information (Tononi), and cellular automata (Conway, Wolfram). Think of it as a predictive coding network where your layer hierarchy is replaced by whoever sits next to you.
+Phi is approximated per agent by comparing the prediction residual of the full neighborhood (joint) against the average residual of each single neighbor (parts). When the whole neighborhood predicts the agent's transition better than the average individual neighbor, Phi is positive. This is a simplified proxy for Tononi's integrated information.
+
+## Background
+
+Draws on predictive processing (Friston), integrated information theory (Tononi), and cellular automata (Conway, Wolfram). Think of it as a predictive coding network where your neighbors replace the layer hierarchy.
+
+## Analysis tools
+
+The `analysis.py` module provides:
+
+- `morans_i(world)` - Moran's I spatial autocorrelation of self-model scores (+1 = clustered, 0 = random, -1 = dispersed)
+- `state_entropy(world)` - Shannon entropy of score distribution
+- `phi_entropy(world)` - Shannon entropy of Phi distribution
+- `cluster_count(world, threshold)` - Connected components above a threshold
+- `run_sweep(...)` - Batch runner with CSV output
+
+```python
+from world import World, Config
+from analysis import morans_i, state_entropy, cluster_count
+
+w = World(Config(size=24, seed=7))
+for _ in range(1000): w.step()
+
+print(f"Moran's I: {morans_i(w):.4f}")
+print(f"Entropy:   {state_entropy(w):.4f}")
+print(f"Clusters:  {cluster_count(w, threshold=0.5)}")
+```
 
 ## Things I can't figure out
 
-Seed 7 produces a 0.93+ agent every time. Seed 12 never does. The weight initialization creates basins of attraction I can't characterize.
+Seed 7 produces a 0.93+ agent every time. Seed 12 does not. The weight initialization creates basins of attraction I can't characterize.
 
 High-scoring agents cluster on the grid. I don't know if one agent being good at self-prediction makes its neighbor better, or if they just happen to share favorable noise. I have tried killing a high-scorer to see if the cluster degrades. Sometimes it does. Sometimes the neighbors get better. I don't understand that at all.
 
+Moore topology (8 neighbors) produces more uniform self-model distributions than von Neumann (4 neighbors). Hex (6 neighbors) produces tighter clusters. Random graphs sometimes produce isolated high-scorers with no spatial pattern. I don't have a theory for why neighbor count relates to spatial structure this way.
+
 Past 10,000 ticks I see three behaviors: plateau, oscillation, and slow divergence. I have no idea what decides which one happens.
 
-The isolation question again: cut communication to a high-scorer, and sometimes the self-model holds without any input for a long time. I would like to know why. If you figure it out, open an issue.
+The isolation question: cut communication to a high-scorer, and sometimes the self-model holds without any input for a long time. I would like to know why. If you figure it out, open an issue.
+
+Phi and self-model score don't always correlate. Some agents show high information integration with low self-prediction. The reverse also occurs. This bothers me because the theories predict they should be related.
 
 ## About
 
-~400 lines of NumPy. Runs on a laptop. MIT license.
+~600 lines of NumPy. Runs on a laptop. MIT license.

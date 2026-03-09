@@ -26,5 +26,9 @@ desktop.ini
 
 # Experiment outputs
 *.npz
+*.csv
 results/
 output/
+
+# Keep the emergence GIF tracked
+!emergence.gif

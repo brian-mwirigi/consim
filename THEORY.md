@@ -102,7 +102,7 @@ This predicts a noise-tolerance ordering: random > moore > hex > von_neumann. Wh
 
 Moore and hex show positive noise effects (noise *helps*, not just "doesn't hurt") — the derivation above explains why noise doesn't destroy performance, but the amplification requires a second mechanism.
 
-### Why noise actively helps on moore (not just doesn't hurt)
+### Why noise actively helps on moore
 
 On high-connectivity grids, noise breaks symmetry. Without noise, nearby agents receive nearly identical inputs (their neighborhoods overlap heavily) and converge to similar states. This creates redundancy — many agents doing the same thing.
 

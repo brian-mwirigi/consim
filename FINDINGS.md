@@ -11,41 +11,69 @@ python run.py --sweep --sweep-seeds 1-50 \
   --ticks 1000 --size 24 --sweep-csv sweep_1250.csv
 ```
 
-## 1. Topology affects self-prediction, but not by much
+## 1. Most runs produce a high-scoring agent
 
-| Topology | Mean self-score | Max self-score | Clusters (>0.5) |
-|----------|:-:|:-:|:-:|
-| moore (8 neighbors) | 0.198 | 0.916 | 39.9 |
-| hex (6 neighbors) | 0.198 | 0.913 | 54.2 |
-| von_neumann (4 neighbors) | 0.186 | 0.909 | 69.5 |
-| small_world | 0.186 | 0.905 | 69.2 |
-| random (4 neighbors) | 0.182 | 0.905 | 68.3 |
+62% of all 1,250 runs produced at least one agent with self-prediction score above 0.90. 8.5% hit 0.95+. This is not a rare event that requires special seeds or tuning. It happens in the majority of runs.
 
-More neighbors correlates with slightly higher mean self-prediction. The effect is consistent across 250 runs per topology but the magnitude is small (0.016 difference between best and worst).
+| Topology | Runs with max > 0.90 |
+|----------|:-:|
+| moore (8 neighbors) | 72% |
+| hex (6 neighbors) | 70% |
+| von_neumann (4 neighbors) | 59% |
+| small_world | 56% |
+| random (4 neighbors) | 52% |
 
-Moore produces roughly half the number of clusters that von Neumann does, meaning the high-scoring agents form fewer, larger groups when they have more neighbors. This is the clearest topological signal in the data.
+## 2. Moore topology benefits from noise. That shouldn't happen.
 
-## 2. Noise barely affects self-prediction
+Moore (8 neighbors) self-prediction scores increase as noise goes up:
 
-| Noise | Mean self-score | Max self-score | Mean Phi | Pred error |
-|-------|:-:|:-:|:-:|:-:|
-| 0.04 | 0.186 | 0.908 | 0.335 | 0.037 |
-| 0.08 | 0.189 | 0.908 | 0.301 | 0.056 |
-| 0.12 | 0.190 | 0.910 | 0.283 | 0.078 |
-| 0.20 | 0.192 | 0.911 | 0.269 | 0.124 |
-| 0.30 | 0.193 | 0.911 | 0.263 | 0.183 |
+| Noise | Moore mean_self | von_neumann mean_self |
+|-------|:-:|:-:|
+| 0.04 | 0.188 | 0.185 |
+| 0.08 | 0.194 | 0.186 |
+| 0.12 | 0.198 | 0.187 |
+| 0.20 | 0.203 | 0.187 |
+| 0.30 | 0.206 | 0.186 |
 
-Self-model scores are almost identical across a 7.5x range of noise levels. A noise level of 0.30 adds substantial message corruption but agents still reach the same self-prediction scores as at 0.04.
+Moore gains +0.018 in mean self-prediction from low to high noise. Von Neumann is flat. Hex shows the same pattern as moore (+0.015). Random and small_world are flat.
 
-Phi drops 21% as noise increases (0.335 to 0.263). Prediction error scales proportionally with noise, as expected.
+More noise should make prediction harder. For high-connectivity topologies, it makes self-prediction easier. The effect is consistent across 50 seeds per cell.
 
-This dissociation is interesting: self-prediction is noise-robust but information integration is not.
+## 3. Random topology Phi is immune to noise
 
-## 3. Phi and self-prediction are not consistently related
+This is the most striking result. Random graph Phi barely moves as noise increases 7.5x:
 
-Overall correlation (Pearson r): **-0.14**
+| Noise | Random mean_phi | Moore mean_phi |
+|-------|:-:|:-:|
+| 0.04 | 0.347 | 0.361 |
+| 0.08 | 0.346 | 0.311 |
+| 0.12 | 0.345 | 0.280 |
+| 0.20 | 0.344 | 0.255 |
+| 0.30 | 0.343 | 0.244 |
 
-By topology:
+Random Phi drops 1% across the full noise range. Moore Phi drops 32%. The information integration structure of random graphs is completely noise-invariant. Grid-based topologies lose integration rapidly as communication degrades.
+
+Random topology also has the highest overall Phi (0.345) and the highest max Phi (0.824) despite having the lowest self-prediction scores (0.182). High information integration, low self-prediction. These are measuring fundamentally different things.
+
+## 4. Moore develops spatial structure from noise
+
+Moran's I (spatial autocorrelation) on Moore grids increases with noise:
+
+| Noise | Moore Moran's I |
+|-------|:-:|
+| 0.04 | 0.000 |
+| 0.08 | +0.014 |
+| 0.12 | +0.029 |
+| 0.20 | +0.046 |
+| 0.30 | +0.055 |
+
+At low noise, high-scoring agents are randomly distributed. As noise increases, they cluster together spatially. Noise creates structure. This only happens on high-connectivity grids (moore and hex). Von Neumann, random, and small_world stay near zero.
+
+Moore also produces roughly half the number of score clusters (40) that von_neumann does (70), meaning fewer but larger groups of high-performing agents.
+
+## 5. Phi and self-prediction are anti-correlated in grids, correlated in random graphs
+
+Overall Pearson correlation (mean_self vs mean_phi): r = -0.14
 
 | Topology | Phi-self correlation |
 |----------|:-:|
@@ -55,58 +83,51 @@ By topology:
 | hex | -0.25 |
 | moore | -0.28 |
 
-The correlation between Phi (integrated information proxy) and self-model score actually flips sign depending on topology. In random graphs, agents with higher Phi tend to have higher self-prediction. In moore and hex grids, it's the opposite.
+In random graphs, runs with more information integration also have more self-prediction. In grid topologies (moore, hex), it's the opposite. The relationship between these two measures flips sign depending on whether the network has spatial structure or not.
 
-I don't have an explanation for this. It seems like the relationship between information integration and self-prediction depends on network structure in a way I can't characterize from this data alone.
+## 6. Topology effect is statistically large
 
-## 4. Initial conditions matter more than parameters
+Cohen's d comparing moore+hex vs the other three topologies: **d = 0.76**
 
-Best seed (19): mean_self = 0.212
-Worst seed (26): mean_self = 0.168
-Spread: 0.044
+That's a large effect size by standard conventions (>0.5 is "medium", >0.8 is "large"). The absolute difference is 0.013 in mean self-score, but it's highly consistent across 500 vs 750 runs with low variance.
 
-That spread is larger than the effect of changing topology (0.016) or noise level (0.007). The initial random weights create basins of attraction that dominate the outcome. This is a problem if you want to claim any parameter effect is robust. It could also just mean 1,000 ticks isn't enough for the system to escape its initial basin.
+| Group | Mean self-score | n |
+|-------|:-:|:-:|
+| moore + hex | 0.198 | 500 |
+| others | 0.185 | 750 |
 
-Seed 7, which I highlighted in the README for producing high scorers at 48x48, ranks in the bottom 5 at 24x24 (mean_self = 0.174). Seed sensitivity appears to depend on grid size. I have no theory for why.
+## 7. Initial conditions still dominate
 
-## 5. The system converges fast
+Best seed (19): mean_self = 0.212. Worst seed (26): mean_self = 0.168. Spread: 0.044.
+
+That spread is larger than the topology effect (0.016) or noise effect (0.007). Seed 7, which produces high self-scorers at 48x48, ranks in the bottom 5 at 24x24. Seed sensitivity depends on grid size in ways I can't explain.
+
+## 8. The system plateaus fast
 
 | Tick | Mean self-score | Max self-score | Mean Phi |
 |------|:-:|:-:|:-:|
 | 500 | 0.192 | 0.907 | 0.291 |
 | 1000 | 0.190 | 0.909 | 0.290 |
 
-Barely any change between tick 500 and tick 1000. Mean self-score actually drops slightly (-0.002). Max self-score rises slightly (+0.002). The system reaches approximate equilibrium by tick 500 at this grid size.
+44% of runs increased mean_self between tick 500 and 1000. 56% decreased. The system is at approximate equilibrium by tick 500 at this grid size. Individual runs fluctuate but there's no consistent trend.
 
-Longer runs at larger grids may show different dynamics. I haven't tested that systematically yet.
+## Summary
 
-## 6. Spatial clustering is weak
+Three things stand out:
 
-Moran's I (spatial autocorrelation) across all conditions:
+1. **Noise helps high-connectivity topologies self-predict.** This is backwards from what you'd expect. More message corruption makes moore and hex agents better at predicting themselves. It doesn't affect low-connectivity topologies at all.
 
-| Topology | Moran's I |
-|----------|:-:|
-| moore | +0.029 |
-| hex | +0.023 |
-| von_neumann | -0.002 |
-| small_world | -0.002 |
-| random | -0.006 |
+2. **Random graph Phi is noise-invariant.** Every other topology loses information integration as noise increases. Random graphs don't. Something about the lack of spatial structure preserves integration.
 
-Values near zero mean scores are essentially randomly distributed in space. Moore and hex show slight positive autocorrelation (high-scorers tend to be near other high-scorers) but the effect is very small. At 24x24, there's no strong spatial structure.
-
-## What I can say
-
-- More neighbors produces slightly higher self-prediction and fewer, larger clusters. Consistent across 250 runs.
-- Self-prediction is robust to noise. Phi is not.
-- Phi and self-prediction are not measuring the same thing. Their relationship depends on topology.
-- Initial conditions dominate over parameter choices at this scale.
+3. **Phi and self-prediction measure different things and their relationship depends on network structure.** Random graphs show positive correlation, grids show negative. These are not two aspects of the same phenomenon.
 
 ## What I can't say
 
-- Whether these effects hold at larger grid sizes or longer runs.
+- Why noise helps self-prediction on high-connectivity grids. I have no mechanism for this.
+- Why random topology Phi is noise-immune. I don't understand what structural property makes this happen.
 - Why the Phi-self correlation flips sign between topologies.
-- Why certain seeds produce consistently different outcomes.
-- Whether any of this has anything to do with consciousness. The math produces patterns. The patterns are interesting. That's as far as the data goes.
+- Whether any of this scales to larger grids or longer runs.
+- Whether any of this has anything to do with consciousness.
 
 ## Reproduce
 

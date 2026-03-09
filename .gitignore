@@ -28,6 +28,9 @@ desktop.ini
 *.npz
 *.csv
 results/
+
+# Private notes
+STEPHEN_FITZ_NOTES.md
 output/
 
 # Keep tracked data

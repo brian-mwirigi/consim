@@ -52,6 +52,9 @@ def main():
     p.add_argument("--sweep-noises", type=str, default="0.12",
                    help="noise levels for sweep, comma-separated (default: 0.12)")
     p.add_argument("--sweep-csv", type=str, default="sweep_results.csv", help="output CSV for sweep (default: sweep_results.csv)")
+    p.add_argument("--gol", action="store_true", help="enable Game of Life substrate layer")
+    p.add_argument("--gol-coupling", type=float, default=0.1, help="GoL signal coupling strength (default: 0.1)")
+    p.add_argument("--gol-density", type=float, default=0.5, help="initial GoL cell density (default: 0.5)")
     args = p.parse_args()
 
     cfg = Config(
@@ -65,6 +68,9 @@ def main():
         num_neighbors=args.num_neighbors,
         rewire_prob=args.rewire_prob,
         seed=args.seed,
+        gol_enabled=args.gol,
+        gol_coupling=args.gol_coupling,
+        gol_density=args.gol_density,
     )
 
     world = World(cfg)
@@ -76,6 +82,8 @@ def main():
     print(f"  {cfg.size}\u00d7{cfg.size} grid  \u00b7  {n_agents:,} agents  \u00b7  {cfg.dim}D state")
     print(f"  noise={cfg.noise}  lr={cfg.lr}  persistence={cfg.persistence}  drive={cfg.drive}")
     print(f"  topology={cfg.topology}")
+    if cfg.gol_enabled:
+        print(f"  GoL substrate: coupling={cfg.gol_coupling}  density={cfg.gol_density}")
     if cfg.seed is not None:
         print(f"  seed={cfg.seed}")
     print()
@@ -104,6 +112,9 @@ def main():
             lr=args.lr,
             persistence=args.persistence,
             output_csv=args.sweep_csv,
+            gol_enabled=args.gol,
+            gol_coupling=args.gol_coupling,
+            gol_density=args.gol_density,
         )
 
     elif args.record:
@@ -125,8 +136,8 @@ def main():
     elif args.headless:
         # ── headless mode: print progress, optionally save ────
         print(f"  Running {args.ticks:,} ticks (headless) ...")
-        print(f"  {'tick':>8s}  \u2502  {'mean_self':>10s}  {'max_self':>9s}  {'p95_self':>9s}  \u2502  {'pred_err':>9s}  {'mean_phi':>9s}")
-        print("  " + "\u2500" * 68)
+        print(f"  {'tick':>8s}  \u2502  {'mean_self':>10s}  {'max_self':>9s}  {'p95_self':>9s}  \u2502  {'pred_err':>9s}  {'mean_phi':>9s}  \u2502  {'R':>7s}  {'T':>7s}  {'E':>7s}")
+        print("  " + "\u2500" * 92)
 
         for t in range(1, args.ticks + 1):
             world.step()
@@ -135,12 +146,18 @@ def main():
                 print(
                     f"  {t:>8,}  \u2502  {ss.mean():>+10.5f}  {ss.max():>+9.4f}  "
                     f"{np.percentile(ss, 95):>+9.4f}  \u2502  {world.pred_errors.mean():>9.5f}"
-                    f"  {world.phi_scores.mean():>9.5f}"
+                    f"  {world.phi_scores.mean():>9.5f}  \u2502  {world.reflexivity.mean():>+7.4f}"
+                    f"  {world.temporal_persistence.mean():>7.4f}  {world.causal_efficacy.mean():>+7.4f}"
                 )
 
         ss = world.self_scores
-        print("  " + "\u2500" * 68)
-        print(f"  Done.  mean_self={ss.mean():+.5f}  max_self={ss.max():+.4f}  mean_phi={world.phi_scores.mean():.5f}")
+        print("  " + "\u2500" * 92)
+        print(
+            f"  Done.  mean_self={ss.mean():+.5f}  max_self={ss.max():+.4f}  "
+            f"phi={world.phi_scores.mean():.5f}  "
+            f"R={world.reflexivity.mean():+.4f}  T={world.temporal_persistence.mean():.4f}  "
+            f"E={world.causal_efficacy.mean():+.4f}"
+        )
 
         if args.output:
             h = world.history

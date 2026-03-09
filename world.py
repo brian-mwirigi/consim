@@ -35,6 +35,9 @@ class Config:
     num_neighbors: int = 4  # neighbor count for random topology
     rewire_prob: float = 0.1  # rewiring probability for small_world
     seed: Optional[int] = None  # random seed (None = unseeded)
+    gol_enabled: bool = False  # Game of Life substrate layer
+    gol_coupling: float = 0.1  # strength of GoL signal injected into agents
+    gol_density: float = 0.5  # initial fraction of alive GoL cells
 
 
 class World:
@@ -80,7 +83,22 @@ class World:
         self.self_scores = np.zeros(N, dtype=np.float32)
         self.pred_errors = np.zeros(N, dtype=np.float32)
         self.phi_scores = np.zeros(N, dtype=np.float32)
+        self.reflexivity = np.zeros(N, dtype=np.float32)
+        self.temporal_persistence = np.ones(N, dtype=np.float32)
+        self.causal_efficacy = np.zeros(N, dtype=np.float32)
         self.tick = 0
+
+        # ── EMA tracking for temporal persistence ─────────────
+        self._self_score_ema = np.zeros(N, dtype=np.float32)
+        self._self_score_var = np.zeros(N, dtype=np.float32)
+
+        # ── Game of Life substrate ────────────────────────────
+        if c.gol_enabled:
+            self.gol = (self.rng.random(N) < c.gol_density).astype(np.float32)
+            self._gol_nbr = self._build_moore_grid()  # GoL always uses Moore
+        else:
+            self.gol = None
+            self._gol_nbr = None
 
         # ── God Mode masks ────────────────────────────────────
         self.dead = np.zeros(N, dtype=bool)
@@ -96,9 +114,26 @@ class World:
             "mean_err": [],
             "mean_phi": [],
             "max_phi": [],
+            "mean_R": [],
+            "mean_T": [],
+            "mean_E": [],
         }
 
     # ── topology ──────────────────────────────────────────────
+
+    def _build_moore_grid(self) -> np.ndarray:
+        """8-connected Moore neighbors on the raw grid (for GoL, not agent comms)."""
+        s = self.cfg.size
+        g = np.arange(self.N, dtype=np.int32).reshape(s, s)
+        n = np.roll(g, 1, axis=0)
+        so = np.roll(g, -1, axis=0)
+        e = np.roll(g, -1, axis=1)
+        w = np.roll(g, 1, axis=1)
+        return np.stack([
+            n, so, e, w,
+            np.roll(n, -1, axis=1), np.roll(n, 1, axis=1),
+            np.roll(so, -1, axis=1), np.roll(so, 1, axis=1),
+        ], axis=-1).reshape(self.N, 8)
 
     def _build_neighbors(self) -> np.ndarray:
         """Build neighbor index array based on configured topology."""
@@ -156,12 +191,14 @@ class World:
         return np.stack([n, so, e, w, d1, d2], axis=-1).reshape(self.N, 6)
 
     def _nbr_random(self) -> np.ndarray:
-        """k random neighbors per agent."""
+        """k random neighbors per agent (vectorized)."""
         k = self.cfg.num_neighbors
         nbrs = np.zeros((self.N, k), dtype=np.int32)
         for i in range(self.N):
-            choices = np.delete(np.arange(self.N, dtype=np.int32), i)
-            nbrs[i] = self.rng.choice(choices, size=k, replace=False)
+            # Sample k from [0, N-1] excluding i
+            candidates = self.rng.choice(self.N - 1, size=k, replace=False)
+            candidates[candidates >= i] += 1
+            nbrs[i] = candidates
         return nbrs
 
     def _nbr_small_world(self) -> np.ndarray:
@@ -198,6 +235,12 @@ class World:
         if np.any(self.isolated):
             recv[self.isolated] = 0.0
 
+        # 3b GAME OF LIFE: inject GoL substrate signal into received input
+        if self.gol is not None:
+            self._step_gol()
+            gol_signal = self._gol_observe()
+            recv = recv + c.gol_coupling * gol_signal
+
         # 4  UPDATE: blend persistence, incoming signals, and random drive
         #    The drive prevents state collapse to zero
         drive = (
@@ -208,9 +251,9 @@ class World:
         # 5  SELF-MODEL SCORE: cosine similarity between what the agent
         #    broadcast (trained for predicting others) and what it became.
         #    This is NEVER explicitly optimized — emergence only.
-        dot = np.einsum("ni,ni->n", msg, self.states)
         n_msg = np.linalg.norm(msg, axis=1) + 1e-8
         n_st = np.linalg.norm(self.states, axis=1) + 1e-8
+        dot = np.einsum("ni,ni->n", msg, self.states)
         self.self_scores = dot / (n_msg * n_st)
 
         # ── God Mode: dead agents stay dead ────────────────────
@@ -241,7 +284,39 @@ class World:
         # 7  PHI: approximate integrated information per agent
         self._compute_phi(old, msg)
 
-        # 8  RECORD
+        # 8  R (REFLEXIVITY): self-prediction minus neighbor-prediction
+        #    Positive R = agent is better at predicting itself than others
+        dot_nbr = np.einsum("ni,nki->nk", msg, nbr_new)  # (N, K)
+        n_nbr = np.linalg.norm(nbr_new, axis=2) + 1e-8  # (N, K)
+        cos_nbr = dot_nbr / (n_msg[:, None] * n_nbr)  # (N, K)
+        self.reflexivity = (self.self_scores - cos_nbr.mean(axis=1)).astype(np.float32)
+
+        # 9  T (TEMPORAL PERSISTENCE): stability of self-model over time
+        beta = 0.95
+        delta_score = self.self_scores - self._self_score_ema
+        self._self_score_ema += (1.0 - beta) * delta_score
+        self._self_score_var = beta * self._self_score_var + (1.0 - beta) * delta_score ** 2
+        self.temporal_persistence = np.clip(
+            1.0 - np.sqrt(self._self_score_var + 1e-8), 0.0, 1.0
+        ).astype(np.float32)
+
+        # 10 E (CAUSAL EFFICACY): how self-determined is the trajectory?
+        #    Compare actual state change to counterfactual without neighbors
+        self_only = np.tanh(c.persistence * old + drive)
+        delta_actual = self.states - old  # (N, D)
+        delta_self = self_only - old  # (N, D)
+        dot_e = np.einsum("ni,ni->n", delta_actual, delta_self)
+        n_da = np.linalg.norm(delta_actual, axis=1) + 1e-8
+        n_ds = np.linalg.norm(delta_self, axis=1) + 1e-8
+        self.causal_efficacy = (dot_e / (n_da * n_ds)).astype(np.float32)
+
+        # ── God Mode: zero metrics for dead agents ──────────────
+        if np.any(self.dead):
+            self.reflexivity[self.dead] = 0.0
+            self.temporal_persistence[self.dead] = 0.0
+            self.causal_efficacy[self.dead] = 0.0
+
+        # 11 RECORD
         self.tick += 1
         h = self.history
         h["tick"].append(self.tick)
@@ -252,6 +327,9 @@ class World:
         h["mean_err"].append(float(self.pred_errors.mean()))
         h["mean_phi"].append(float(self.phi_scores.mean()))
         h["max_phi"].append(float(self.phi_scores.max()))
+        h["mean_R"].append(float(self.reflexivity.mean()))
+        h["mean_T"].append(float(self.temporal_persistence.mean()))
+        h["mean_E"].append(float(self.causal_efficacy.mean()))
 
     def _compute_phi(self, old_states: np.ndarray, messages: np.ndarray) -> None:
         """
@@ -261,7 +339,6 @@ class World:
         the integrated whole of its neighborhood vs. the parts independently.
         """
         nbr_states_old = old_states[self._nbr]  # (N, K, D)
-        K = self._nbr.shape[1]
 
         # joint: how well does the full neighborhood predict the agent's change?
         delta = self.states - old_states  # (N, D)
@@ -269,12 +346,9 @@ class World:
         joint_resid = delta - nbr_mean  # (N, D)
         joint_var = np.sum(joint_resid ** 2, axis=1)  # (N,)
 
-        # parts: average of each single-neighbor prediction residuals
-        parts_var = np.zeros(self.N, dtype=np.float32)
-        for k in range(K):
-            single_resid = delta - nbr_states_old[:, k, :]  # (N, D)
-            parts_var += np.sum(single_resid ** 2, axis=1)
-        parts_var /= K
+        # parts: average of each single-neighbor prediction residuals (vectorized)
+        parts_resid = delta[:, None, :] - nbr_states_old  # (N, K, D)
+        parts_var = np.sum(parts_resid ** 2, axis=2).mean(axis=1)  # (N,)
 
         # phi = how much better the whole predicts than the average part
         raw_phi = parts_var - joint_var
@@ -282,6 +356,26 @@ class World:
 
         if np.any(self.dead):
             self.phi_scores[self.dead] = 0.0
+
+    # ── Game of Life substrate ────────────────────────────────
+
+    def _step_gol(self) -> None:
+        """Advance the Game of Life grid by one generation (B3/S23)."""
+        alive = self.gol[self._gol_nbr]  # (N, 8)
+        count = alive.sum(axis=1)  # (N,) live neighbor count
+        # B3/S23: birth if 3 neighbors, survive if 2 or 3
+        birth = (self.gol == 0) & (count == 3)
+        survive = (self.gol == 1) & ((count == 2) | (count == 3))
+        self.gol = (birth | survive).astype(np.float32)
+
+    def _gol_observe(self) -> np.ndarray:
+        """Each agent observes its GoL cell and local GoL neighborhood."""
+        cell = self.gol  # (N,)
+        nbr_alive = self.gol[self._gol_nbr].mean(axis=1)  # (N,) fraction alive
+        signal = np.zeros((self.N, self.D), dtype=np.float32)
+        signal[:, 0::2] = (cell[:, None] - 0.5)  # center: [0,1] -> [-0.5, 0.5]
+        signal[:, 1::2] = (nbr_alive[:, None] - 0.5)
+        return signal
 
     # ── God Mode interventions ────────────────────────────────
 
@@ -329,6 +423,9 @@ class World:
             "self_scores": self.self_scores.copy(),
             "pred_errors": self.pred_errors.copy(),
             "phi_scores": self.phi_scores.copy(),
+            "reflexivity": self.reflexivity.copy(),
+            "temporal_persistence": self.temporal_persistence.copy(),
+            "causal_efficacy": self.causal_efficacy.copy(),
             "config": vars(self.cfg),
         }
 
@@ -343,3 +440,15 @@ class World:
     def grid_phi(self) -> np.ndarray:
         """Phi scores reshaped to the 2D grid."""
         return self.phi_scores.reshape(self.cfg.size, self.cfg.size)
+
+    def grid_reflexivity(self) -> np.ndarray:
+        """Reflexivity scores reshaped to the 2D grid."""
+        return self.reflexivity.reshape(self.cfg.size, self.cfg.size)
+
+    def grid_persistence(self) -> np.ndarray:
+        """Temporal persistence reshaped to the 2D grid."""
+        return self.temporal_persistence.reshape(self.cfg.size, self.cfg.size)
+
+    def grid_efficacy(self) -> np.ndarray:
+        """Causal efficacy reshaped to the 2D grid."""
+        return self.causal_efficacy.reshape(self.cfg.size, self.cfg.size)

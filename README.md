@@ -12,7 +12,14 @@ It goes up.
 
 Not always. Not every agent. But run this with seed 7 and wait. Around tick 800, one agent hits 0.94 on self-prediction. I have run this dozens of times. Seed 7 does it reliably. Seed 12 never does. Same code, same parameters, different initial random weights. I don't know why.
 
-I also approximate Phi (integrated information) per agent. Phi measures how much an agent's state transition depends on the integrated whole of its neighborhood versus each neighbor independently. Some agents show high Phi and high self-prediction simultaneously. Some show one without the other.
+I also approximate four MCH (Micro-Coherence Hypothesis) metrics per agent:
+
+- **Φ (Integration)** — how much an agent's state transition depends on its full neighborhood versus each neighbor independently
+- **R (Reflexivity)** — how much better an agent predicts itself versus predicting its neighbors
+- **T (Temporal Persistence)** — how stable the self-model is over time (low variance = high T)
+- **E (Causal Efficacy)** — how much the agent's own dynamics (vs. neighbor input) determine its trajectory
+
+None of these are optimized. They are all emergent measurements.
 
 I'm putting this out because I want other people to look at it.
 
@@ -36,6 +43,18 @@ python run.py --topology small_world   # von_neumann + random rewiring
 ```
 
 Moore and hex produce different clustering patterns. Random graphs produce different dynamics entirely. small_world with high rewire probability sometimes produces long-range self-model correlations that grid topologies never show. These are observations, not explanations.
+
+## Game of Life substrate
+
+Agents can sit on top of a Conway's Game of Life layer. The GoL runs B3/S23 rules on its own Moore grid, independent of the agent topology. Each agent receives an additive signal encoding its GoL cell state and local density.
+
+```bash
+python run.py --gol                           # GoL ON, default coupling 0.1
+python run.py --gol --gol-coupling 0.3         # stronger GoL influence
+python run.py --gol --gol-density 0.3          # sparser initial GoL state
+```
+
+GoL triples mean self-prediction (0.19 → 0.57 at size 24) because agents track the structured external signal. Causal efficacy drops (0.66 → 0.44) because the GoL signal is externally imposed. Temporal persistence rises (0.66 → 0.80) because the GoL provides a stable reference. Reflexivity narrows (+0.13 → +0.06) because the GoL signal helps predict neighbors too.
 
 ## Visualization
 
@@ -69,7 +88,7 @@ python run.py --sweep --sweep-seeds 1-20 --sweep-topos von_neumann,moore,hex --t
 python run.py --sweep --sweep-seeds 1-5 --sweep-topos von_neumann --ticks 1000 --size 24
 ```
 
-Outputs a CSV with per-tick samples of: mean/max/p95 self-model, mean/max Phi, prediction error, Moran's I (spatial autocorrelation), Shannon entropy, and cluster counts at two thresholds.
+Outputs a CSV with per-tick samples of: mean/max/p95 self-model, mean/max Phi, prediction error, Moran's I (spatial autocorrelation), Shannon entropy, cluster counts at two thresholds, and the three MCH metrics (mean R, mean T, mean E).
 
 ## Recording
 
@@ -128,6 +147,9 @@ The best thing you did was kill your own finding. The second best thing would be
 | `--sweep-seeds` | 1-10 | Seed range for sweep |
 | `--sweep-topos` | von_neumann,moore,hex | Topologies for sweep |
 | `--sweep-csv` | sweep_results.csv | Output CSV path |
+| `--gol` | off | Enable Game of Life substrate |
+| `--gol-coupling` | 0.1 | GoL signal strength |
+| `--gol-density` | 0.5 | Initial GoL alive fraction |
 
 ## Loading saved runs
 
@@ -154,6 +176,12 @@ Each tick:
 Self-model score = cosine similarity between broadcast message and new state. Not in the gradient.
 
 Phi is approximated per agent by comparing the prediction residual of the full neighborhood (joint) against the average residual of each single neighbor (parts). When the whole neighborhood predicts the agent's transition better than the average individual neighbor, Phi is positive. This is a simplified proxy for Tononi's integrated information.
+
+Reflexivity (R) = cos(message, own_new_state) − mean(cos(message, neighbor_new_states)). Positive R means the agent is better at self-prediction than other-prediction.
+
+Temporal persistence (T) = 1 − √(EMA variance of self-scores). An agent with a stable self-model across time has T near 1.
+
+Causal efficacy (E) = cos(Δs_actual, Δs_self_only), where Δs_self_only is the counterfactual state change without neighbor input. E near 1 means the agent's trajectory is self-determined.
 
 ## Background
 
@@ -199,10 +227,10 @@ Phi and self-model score don't always correlate. Some agents show high informati
 
 ## Results
 
-I ran 1,250 simulations across 50 seeds, 5 topologies, and 5 noise levels. Full writeup with tables: [FINDINGS.md](FINDINGS.md). Analytical derivations for the three replicating effects: [THEORY.md](THEORY.md)
+I ran 3,750+ simulations across multiple grid sizes (12, 24, 48), 50 seeds, 5 topologies, and 5 noise levels. Full writeup with tables: [FINDINGS.md](FINDINGS.md). Analytical derivations for the three replicating effects: [THEORY.md](THEORY.md). Extended abstract for MC0001 conference submission: [ABSTRACT.md](ABSTRACT.md).
 
-Short version: more neighbors produces slightly higher self-prediction. Self-prediction is noise-robust but Phi is not (except on random graphs, where both are noise-immune). Phi and self-model score are not measuring the same thing. Initial conditions matter more than parameter choices.
+Short version: more neighbors produces slightly higher self-prediction. Self-prediction is noise-robust but Phi is not (except on random graphs, where both are noise-immune). Phi and self-model score are not measuring the same thing. Initial conditions matter more than parameter choices. Game of Life substrate triples self-prediction but reduces causal efficacy.
 
 ## About
 
-~600 lines of NumPy. Runs on a laptop. MIT license.
+~800 lines of NumPy. Runs on a laptop. Size-48 grids run at ~4ms/tick. MIT license.

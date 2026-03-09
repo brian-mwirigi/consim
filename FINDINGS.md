@@ -198,6 +198,93 @@ The Phi-vs-self-prediction dissociation is the most portable result. It holds ac
 
 See [THEORY.md](THEORY.md) for analytical explanations of the random fixed point, moore noise amplification, and small-world Phi dissociation.
 
+---
+
+## Replication at size 48 (with R, T, E metrics)
+
+250 simulations. 10 seeds, 5 topologies, 5 noise levels. 1,000 ticks each at 48×48 (2,304 agents). This sweep also includes the three new MCH metrics: Reflexivity (R), Temporal Persistence (T), and Causal Efficacy (E).
+
+```bash
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,hex,random,small_world \
+  --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
+  --ticks 1000 --size 48 --sweep-csv sweep_size48.csv
+```
+
+### All three structural effects replicate
+
+**Moore noise amplification** — replicates. Moore `mean_self` rises monotonically with noise.
+
+| Noise | Size 12 moore | Size 24 moore | Size 48 moore |
+|-------|:-:|:-:|:-:|
+| 0.04 | 0.184 | 0.188 | 0.187 |
+| 0.12 | 0.203 | 0.198 | 0.201 |
+| 0.30 | 0.215 | 0.206 | 0.209 |
+
+**Random noise immunity** — replicates. `mean_self` stays flat (~0.184±0.001) across all noise levels. Phi, R, and T are also flat.
+
+| Noise | mean_self | mean_phi | mean_R | mean_T |
+|-------|:-:|:-:|:-:|:-:|
+| 0.04 | 0.183 | 0.348 | +0.181 | 0.659 |
+| 0.12 | 0.184 | 0.347 | +0.182 | 0.658 |
+| 0.30 | 0.184 | 0.346 | +0.181 | 0.658 |
+
+R varies by 0.001 across the full noise range. T varies by 0.0006. The fixed point extends to the new MCH metrics.
+
+**Small-world Phi boost** — replicates. At all noise levels, small_world shortcuts increase Phi relative to von_neumann while leaving self-prediction unchanged.
+
+| Noise | Phi boost (sw − vn) | Self diff (sw − vn) |
+|-------|:-:|:-:|
+| 0.04 | +0.011 | −0.001 |
+| 0.12 | +0.034 | −0.004 |
+| 0.30 | +0.042 | −0.004 |
+
+The boost grows with noise (size 48: +0.011 to +0.042; size 24: +0.015 to +0.044). Nearly identical magnitudes.
+
+### Cross-size stability
+
+Self-prediction and Phi are remarkably stable across grid sizes 24 and 48:
+
+| Topology | self Δ (48 − 24) | phi Δ (48 − 24) |
+|----------|:-:|:-:|
+| von_neumann | +0.001 | +0.001 |
+| moore | +0.002 | +0.002 |
+| hex | +0.003 | +0.002 |
+| random | +0.002 | +0.002 |
+| small_world | −0.002 | −0.002 |
+
+All deltas within ±0.003. The system's macroscopic behavior is scale-invariant once grids are large enough (~12+).
+
+### New findings from R, T, E
+
+**E (Causal Efficacy) declines monotonically with noise on ALL topologies**. This is the only metric that does. More noise means more external perturbation, making agent trajectories less self-determined. The decline is steepest on moore (0.92 → 0.59) and shallowest on random (0.87 → 0.58).
+
+| Topology | E at noise=0.04 | E at noise=0.30 | Δ |
+|----------|:-:|:-:|:-:|
+| von_neumann | +0.871 | +0.585 | −0.286 |
+| moore | +0.923 | +0.590 | −0.334 |
+| hex | +0.904 | +0.581 | −0.323 |
+| random | +0.871 | +0.583 | −0.287 |
+| small_world | +0.871 | +0.589 | −0.283 |
+
+**T (Temporal Persistence) rises slightly with noise on moore and hex** (0.659 → 0.662). On von_neumann, random, and small_world it is flat (~0.658). Noise on high-connectivity grids stabilizes the self-model. This is the same topologies where noise helps self-prediction — suggesting both effects share a mechanism.
+
+**R (Reflexivity) declines with noise on all grid topologies** (moore drops from +0.148 to +0.105). On random, R is flat (+0.181 ± 0.001). Higher noise makes agents worse at distinguishing self-prediction from other-prediction. Random's immunity extends to R.
+
+**Random topology shows the highest R** (+0.181 vs ~0.125 for grid topologies). Random agents are uniquely good at self/other discrimination, consistent with the hypothesis that random connectivity creates more distinctive agent identities.
+
+### Topology ranking by metric
+
+| Metric | Best | | | | Worst |
+|--------|------|---|---|---|-------|
+| Self | hex (0.201) | moore (0.200) | vn (0.187) | random (0.184) | sw (0.183) |
+| Phi | random (0.347) | moore (0.292) | hex (0.283) | sw (0.282) | vn (0.252) |
+| R | random (+0.181) | sw (+0.140) | vn (+0.130) | moore (+0.122) | hex (+0.120) |
+| T | moore (0.661) | hex (0.661) | vn (0.659) | random (0.658) | sw (0.658) |
+| E | moore (+0.731) | hex (+0.711) | sw (+0.693) | random (+0.690) | vn (+0.690) |
+
+Random leads in Phi and R but trails in self-prediction and E. Moore leads in self-prediction (tied with hex), T, and E. No single topology dominates all metrics — the MCH correlates are genuinely dissociated.
+
 ## Reproduce
 
 ```bash

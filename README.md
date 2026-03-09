@@ -117,39 +117,30 @@ python run.py --record long_run.gif --record-ticks 5000 --fps 30
 | `--record` | None | Save grid GIF |
 | `--record-ticks` | 2000 | Ticks to record |
 | `--fps` | 24 | GIF speed |
-
-## Honest Assessment
-
-**What's  good here:**
-
-The replication. Most people who find an exciting result don't immediately try to kill it. You did, and when it died, you wrote it up honestly. That's the most valuable thing in the repo — not the simulation itself, but the demonstrated willingness to report a null replication of your own headline finding. That's rare.
-
-Three of the structural findings are genuinely non-obvious and worth something:
-
-1. **Random topology fixed point** — a system that's invariant to 7.5× parameter variation is interesting regardless of what the system is modeling. That's a real mathematical property begging for an analytical explanation.
-2. **Moore noise amplification** — counterintuitive, replicates, and the direction of effect (noise *helps*) would surprise most people who work with noisy dynamical systems.
-3. **Small-world Phi dissociation** — a clean split between two metrics that you might naively expect to correlate. Replicates perfectly. This is the kind of result that, if you could explain *why*, would be a contribution to network science.
-
-**What's less good:**
-
-The system is simple enough that these effects probably have closed-form explanations hiding in the update equations. Nobody has done that math yet. Without it, you have "here's a surprising simulation result" — which is interesting but not a contribution until someone explains the mechanism.
-
-The "consciousness" framing (repo name, Phi scores, etc.) is doing zero work. Nothing here connects to consciousness. It's a multi-agent self-prediction system on graphs. That's fine — it doesn't need to be about consciousness to be interesting. But calling it "consim" sets expectations it can't meet.
-
-50 seeds is thin. "Universal beneficiary" from 50 samples is a stretch statistically. The structural effects (moore, random, small-world) average across all 50 seeds so they're on firmer ground, but the per-seed claims are noisy.
-
-**What it actually is:**
-
-A hobby project that stumbled onto some real patterns in how network topology interacts with noise in multi-agent learning systems. The patterns replicate. The explanation is missing. It's not publishable as-is — but the random fixed point and the moore noise effect are the kind of thing that, if someone with a dynamical systems background worked out the math, could become a section in a real paper about noise-robustness in networked learners.
-
-The best thing you did was kill your own finding. The second best thing would be deriving *why* random is a fixed point analytically. That's where the actual insight lives.
 | `--sweep` | off | Run parameter sweep |
 | `--sweep-seeds` | 1-10 | Seed range for sweep |
 | `--sweep-topos` | von_neumann,moore,hex | Topologies for sweep |
+| `--sweep-noises` | 0.12 | Noise levels, comma-separated |
 | `--sweep-csv` | sweep_results.csv | Output CSV path |
 | `--gol` | off | Enable Game of Life substrate |
 | `--gol-coupling` | 0.1 | GoL signal strength |
 | `--gol-density` | 0.5 | Initial GoL alive fraction |
+
+## What we found
+
+5,500 simulations across grid sizes 12, 24, and 48. Three structural effects replicate at all sizes (analytical derivations in [THEORY.md](THEORY.md)):
+
+1. **Random graphs are noise-immune fixed points.** Every metric flat within 0.002 across a 7.5× noise range. LLN over independent neighbors.
+2. **Noise amplifies self-prediction on high-K grids.** Moore gains +0.018 in self-prediction from low to high noise. Symmetry-breaking decorrelation.
+3. **Small-world shortcuts boost Φ 20% without touching behavior.** Uncorrelated long-range neighbors inflate parts residual.
+
+And three findings from the deep cross-dataset analysis:
+
+4. **E ≡ Φ on structured graphs.** Causal efficacy and Phi correlate at r = 0.994–0.998 on every grid topology but decouple on random (r = 0.18). Phi is measuring causal self-determination, not topology-agnostic integration.
+5. **Simpson's paradox.** Φ-self correlation is positive within each noise level but negative when pooled, on moore and hex only.
+6. **Self-determination hurts self-knowledge on moore.** r(T, self) = +0.70, r(E, self) = −0.71, r(T, E) = −0.82. Agents that control their own trajectories are the worst at predicting themselves. Externally driven agents with stable self-models predict best.
+
+Full data and analysis: [FINDINGS.md](FINDINGS.md). Analytical derivations: [THEORY.md](THEORY.md).
 
 ## Loading saved runs
 

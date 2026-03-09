@@ -3,10 +3,9 @@ consim — Core Simulation
 
 A toroidal grid of simple agents. Each agent has an internal state vector
 and a weight matrix. Every tick, each agent transforms its state into a
-message and broadcasts it (with noise) to its four neighbors. Agents
-update their state from what they receive. They learn — via gradient
-descent on prediction error — to anticipate what their neighbors will
-become.
+message and broadcasts it (with noise) to its neighbors. Agents update
+their state from what they receive. They learn — via gradient descent on
+prediction error — to anticipate what their neighbors will become.
 
 The self-model score measures how well each agent's outgoing message
 (trained to predict *others*) accidentally predicts its OWN next state.
@@ -191,7 +190,7 @@ class World:
         return np.stack([n, so, e, w, d1, d2], axis=-1).reshape(self.N, 6)
 
     def _nbr_random(self) -> np.ndarray:
-        """k random neighbors per agent (vectorized)."""
+        """k random neighbors per agent."""
         k = self.cfg.num_neighbors
         nbrs = np.zeros((self.N, k), dtype=np.int32)
         for i in range(self.N):

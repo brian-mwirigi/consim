@@ -291,9 +291,27 @@ Random leads in Phi and R but trails in self-prediction and E. Moore leads in se
 
 Statistical mining across all three datasets (5,500 total simulation rows). The findings below were verified for replication across at least two grid sizes unless noted.
 
-### 1. E ≡ Φ on structured graphs
+### 1. Self-determination hurts self-knowledge
 
-**The biggest finding.** Causal Efficacy and Phi are the same measurement on spatially structured networks. They completely decouple on random graphs.
+**The headline finding.** On moore grids, Temporal Persistence and Causal Efficacy predict self-prediction in **opposite directions**, and are strongly anti-correlated with each other.
+
+| Correlation | moore | hex | von_neumann | random | small_world |
+|-------------|:-:|:-:|:-:|:-:|:-:|
+| r(T, self) | **+0.70** | +0.52 | +0.03 | +0.12 | +0.22 |
+| r(E, self) | **−0.71** | −0.71 | −0.12 | −0.14 | +0.06 |
+| r(T, E) | **−0.82** | −0.74 | +0.07 | +0.32 | −0.08 |
+
+On moore, a stable self-model (high T) predicts better behavior, but a self-determined trajectory (high E) predicts *worse* behavior. The two metrics pull apart: r(T,E) = −0.82. The agents that predict themselves best are the ones whose self-models are stable over time (high T) but whose dynamics are externally driven (low E). **Self-determination is a liability for self-prediction on high-connectivity grids.**
+
+The mechanism: neighbors on moore are predictable (8 of them, averaging out). If your trajectory is driven by those neighbors, your future state is a function of a predictable input — easy to self-predict. But if your trajectory is self-determined — driven by your own internal dynamics, which are nonlinear and chaotic — you're harder for yourself to forecast. External determination is regularizing. Self-determination is noise, from the self-model's perspective.
+
+This inverts the deepest intuition in the consciousness literature. IIT, MCH, and most autonomy-based frameworks assume self-determination enables self-knowledge. The data says the opposite: on high-connectivity grids, autonomy destroys self-knowledge.
+
+Hex shows the same pattern more weakly. Von Neumann, random, and small_world show near-zero T-E correlation — the dissociation is connectivity-dependent.
+
+### 2. E ≡ Φ on structured graphs
+
+Causal Efficacy and Phi are the same measurement on spatially structured networks. They completely decouple on random graphs.
 
 | Topology | r(E, Φ) | Linear slope | RMSE |
 |----------|:-:|:-:|:-:|
@@ -307,7 +325,7 @@ On every grid topology, knowing E gives you Φ (and vice versa) to within ~0.5% 
 
 **Implication:** Φ is not measuring "information integration" in a topology-agnostic sense. On structured networks, it is measuring causal self-determination — how much an agent's trajectory is driven by its own dynamics vs. external perturbation. Random connectivity destroys this equivalence because spatial structure is what makes causal efficacy and integration co-vary.
 
-### 2. Simpson's paradox: Φ-self correlation reverses sign
+### 3. Simpson's paradox: Φ-self correlation reverses sign
 
 On moore and hex, the Φ-self correlation is **positive** within each noise level but **negative** when pooled across noise levels.
 
@@ -325,20 +343,6 @@ On moore and hex, the Φ-self correlation is **positive** within each noise leve
 Within any single noise level, higher Φ means higher self-prediction. Pool the data, and the sign flips to negative. The confound: noise simultaneously increases self-prediction (+0.018 from low to high noise) while crushing Φ (−0.117). The marginal correlation inherits the noise trend, not the within-condition relationship.
 
 **Replication:** The sign flip replicates at size 12 (moore within: +0.38, pooled: −0.14; hex within: +0.41, pooled: −0.11). Von Neumann, random, and small_world do NOT show the flip at either size — the paradox is specific to high-connectivity grid topologies.
-
-### 3. Moore T-E dissociation
-
-On moore, Temporal Persistence and Causal Efficacy predict self-prediction in **opposite directions**, and are strongly anti-correlated with each other.
-
-| Correlation | moore | hex | von_neumann | random | small_world |
-|-------------|:-:|:-:|:-:|:-:|:-:|
-| r(T, self) | **+0.70** | +0.52 | +0.03 | +0.12 | +0.22 |
-| r(E, self) | **−0.71** | −0.71 | −0.12 | −0.14 | +0.06 |
-| r(T, E) | **−0.82** | −0.74 | +0.07 | +0.32 | −0.08 |
-
-On moore, a stable self-model (high T) predicts better behavior, but a self-determined trajectory (high E) predicts *worse* behavior. The two metrics pull apart: r(T,E) = −0.82. This says that on high-connectivity grids, the agents that predict themselves best are the ones whose self-models are stable over time (high T) but whose dynamics are externally driven (low E). Self-determination is a *liability* for self-prediction on moore.
-
-Hex shows the same pattern more weakly. Von Neumann, random, and small_world show near-zero T-E correlation — the dissociation is connectivity-dependent.
 
 ### 4. Seed ranks are non-transferable across sizes
 

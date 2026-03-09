@@ -95,6 +95,9 @@ def run_sweep(
     noises: List[float] = None,
     lr: float = 0.003,
     persistence: float = 0.3,
+    drive: float = 0.02,
+    num_neighbors: int = 4,
+    rewire_prob: float = 0.1,
     output_csv: str = "sweep_results.csv",
     sample_interval: int = 500,
     gol_enabled: bool = False,
@@ -117,7 +120,9 @@ def run_sweep(
             for seed in seeds:
                 cfg = Config(
                     size=size, dim=dim, noise=noise, lr=lr,
-                    persistence=persistence, topology=topo, seed=seed,
+                    persistence=persistence, drive=drive,
+                    num_neighbors=num_neighbors, rewire_prob=rewire_prob,
+                    topology=topo, seed=seed,
                     gol_enabled=gol_enabled, gol_coupling=gol_coupling,
                     gol_density=gol_density,
                 )

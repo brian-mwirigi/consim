@@ -27,7 +27,7 @@ python run.py --sweep --sweep-seeds 1-50 \
 | 0.20 | 0.199 | 0.190 | 0.194 |
 | 0.30 | 0.201 | 0.191 | 0.193 |
 
-The seeds that start below average at low noise end up above average at high noise. The seed that starts above average drops to mediocre. Noise doesn't just add randomness. It reverses the hierarchy of which initial conditions succeed.
+The seeds that start below average at low noise end up above average at high noise. The seed that starts above average drops to mediocre. Noise doesn't add randomness rather it reverses the hierarchy of which initial conditions succeed.
 
 This happens within individual runs too. Seed 4 on moore at noise=0.30: at tick 500 it's losing to seed 22 by 0.054. By tick 1000 it's winning by 0.047. A gap reversal of 0.101 in 500 ticks. The noise-adapted dynamics take hundreds of ticks to manifest.
 

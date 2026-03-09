@@ -34,6 +34,9 @@ def main():
     p.add_argument("--headless", action="store_true", help="run without visualization")
     p.add_argument("--ticks", type=int, default=5000, help="max ticks in headless mode (default: 5000)")
     p.add_argument("--output", type=str, default=None, help="save final state to .npz file")
+    p.add_argument("--record", type=str, default=None, help="record grid evolution to GIF file")
+    p.add_argument("--record-ticks", type=int, default=2000, help="ticks to record (default: 2000)")
+    p.add_argument("--fps", type=int, default=24, help="GIF frame rate (default: 24)")
     args = p.parse_args()
 
     cfg = Config(
@@ -57,7 +60,23 @@ def main():
         print(f"  seed={cfg.seed}")
     print()
 
-    if args.headless:
+    if args.record:
+        # ── record mode: GIF output, no window ─────────────
+        try:
+            from visualizer import record_gif
+        except ImportError as e:
+            print(f"  Error: matplotlib and Pillow are required for recording.")
+            print(f"  Install them:  pip install matplotlib Pillow")
+            sys.exit(1)
+
+        record_gif(
+            world,
+            path=args.record,
+            ticks=args.record_ticks,
+            fps=args.fps,
+        )
+
+    elif args.headless:
         # ── headless mode: print progress, optionally save ────
         print(f"  Running {args.ticks:,} ticks (headless) ...")
         print(f"  {'tick':>8s}  \u2502  {'mean_self':>10s}  {'max_self':>9s}  {'p95_self':>9s}  \u2502  {'pred_err':>9s}")

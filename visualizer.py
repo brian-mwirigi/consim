@@ -122,6 +122,22 @@ def run_live(
         fontfamily="monospace",
     )
 
+    # ── God Mode overlays ─────────────────────────────────
+    mode_text = ax_g.text(
+        0.5, 0.02, "", transform=ax_g.transAxes,
+        color=GOLD, fontsize=10, ha="center", va="bottom",
+        fontfamily="monospace", fontweight="bold",
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="#1a1a1a",
+                  edgecolor="#333", alpha=0.9),
+    )
+    dead_scat = ax_g.scatter(
+        [], [], marker="x", c=RED, s=50, linewidths=1.5, zorder=5,
+    )
+    iso_scat = ax_g.scatter(
+        [], [], marker="o", facecolors="none", edgecolors="white",
+        s=60, linewidths=1.2, zorder=5,
+    )
+
     # ── self-model curve (top-right) ──────────────────────────
     ax_s = fig.add_subplot(gs[0, 1])
     ax_s.set_title(
@@ -167,7 +183,44 @@ def run_live(
         for sp in ax.spines.values():
             sp.set_color("#222")
 
-    # ── animation loop ────────────────────────────────────────
+    # ── animation loop ────────────────────────────────────
+
+    # ── God Mode event handlers ───────────────────────────
+    _mode = ["observe"]  # mutable for closure
+
+    def _on_key(event):
+        key = event.key
+        if key == "k":
+            _mode[0] = "kill"
+        elif key == "i":
+            _mode[0] = "isolate"
+        elif key == "j":
+            _mode[0] = "inject"
+        elif key == "escape":
+            _mode[0] = "observe"
+        labels = {"kill": "[K]ILL", "isolate": "[I]SOLATE", "inject": "IN[J]ECT"}
+        if _mode[0] == "observe":
+            mode_text.set_text("")
+        else:
+            mode_text.set_text(f"GOD MODE: {labels[_mode[0]]}  \u2014  click an agent")
+
+    def _on_click(event):
+        if event.inaxes != ax_g or _mode[0] == "observe":
+            return
+        col = int(round(event.xdata))
+        row = int(round(event.ydata))
+        if not (0 <= row < s and 0 <= col < s):
+            return
+        if _mode[0] == "kill":
+            world.kill_agent(row, col)
+        elif _mode[0] == "isolate":
+            world.isolate_agent(row, col)
+        elif _mode[0] == "inject":
+            world.inject_agent(row, col)
+
+    fig.canvas.mpl_connect("key_press_event", _on_key)
+    fig.canvas.mpl_connect("button_press_event", _on_click)
+
     def _update(_frame):
         for _ in range(steps_per_frame):
             world.step()
@@ -200,7 +253,25 @@ def run_live(
         ss = world.self_scores
         stats_lbl.set_text(f"mean {ss.mean():+.3f}  max {ss.max():+.3f}")
 
-        return [im, ln_mean, ln_p95, ln_max, ln_err, tick_lbl, stats_lbl]
+        # God Mode overlays
+        dead_grid = world.dead.reshape(s, s)
+        dr, dc = np.where(dead_grid)
+        if len(dr):
+            dead_scat.set_offsets(np.column_stack([dc, dr]))
+        else:
+            dead_scat.set_offsets(np.empty((0, 2)))
+
+        iso_grid = world.isolated.reshape(s, s)
+        ir, ic = np.where(iso_grid)
+        if len(ir):
+            iso_scat.set_offsets(np.column_stack([ic, ir]))
+        else:
+            iso_scat.set_offsets(np.empty((0, 2)))
+
+        return [
+            im, ln_mean, ln_p95, ln_max, ln_err,
+            tick_lbl, stats_lbl, dead_scat, iso_scat, mode_text,
+        ]
 
     _ani = animation.FuncAnimation(
         fig,
@@ -211,3 +282,73 @@ def run_live(
     )
 
     plt.show()
+
+
+def record_gif(
+    world: World,
+    path: str,
+    ticks: int = 2000,
+    steps_per_frame: int = 4,
+    fps: int = 24,
+    dpi: int = 120,
+) -> None:
+    """
+    Record the grid evolution as a GIF file.
+
+    Renders only the heatmap — clean, minimal, ready for social media.
+    """
+    s = world.cfg.size
+    total_frames = ticks // steps_per_frame
+
+    fig, ax = plt.subplots(figsize=(6, 6), facecolor=BG)
+    ax.set_facecolor(BG)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for sp in ax.spines.values():
+        sp.set_color("#222")
+
+    im_obj = ax.imshow(
+        np.zeros((s, s)),
+        cmap=CMAP,
+        vmin=-1,
+        vmax=1,
+        interpolation="nearest",
+        aspect="equal",
+    )
+
+    tick_text = ax.text(
+        0.03, 0.97, "", transform=ax.transAxes,
+        color=TEAL, fontsize=14, va="top", fontfamily="monospace",
+        fontweight="bold",
+    )
+    score_text = ax.text(
+        0.97, 0.97, "", transform=ax.transAxes,
+        color=FG_DIM, fontsize=10, va="top", ha="right", fontfamily="monospace",
+    )
+
+    fig.tight_layout(pad=0.5)
+
+    def _init():
+        im_obj.set_data(np.zeros((s, s)))
+        tick_text.set_text("")
+        score_text.set_text("")
+        return [im_obj, tick_text, score_text]
+
+    def _update(frame):
+        for _ in range(steps_per_frame):
+            world.step()
+        im_obj.set_data(world.grid_scores())
+        tick_text.set_text(f"tick {world.tick:,}")
+        ss = world.self_scores
+        score_text.set_text(f"max {ss.max():+.3f}")
+        return [im_obj, tick_text, score_text]
+
+    anim = animation.FuncAnimation(
+        fig, _update, init_func=_init,
+        frames=total_frames, blit=True,
+    )
+
+    print(f"  Recording {total_frames} frames ({ticks} ticks) ...")
+    anim.save(path, writer="pillow", fps=fps, dpi=dpi)
+    plt.close(fig)
+    print(f"  Saved to {path}")

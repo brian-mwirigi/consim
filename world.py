@@ -78,6 +78,10 @@ class World:
         self.pred_errors = np.zeros(N, dtype=np.float32)
         self.tick = 0
 
+        # ── God Mode masks ────────────────────────────────────
+        self.dead = np.zeros(N, dtype=bool)
+        self.isolated = np.zeros(N, dtype=bool)
+
         # ── time-series history ───────────────────────────────
         self.history: Dict[str, List[float]] = {
             "tick": [],
@@ -121,6 +125,10 @@ class World:
         # 3  RECEIVE: each agent averages messages from its 4 neighbors
         recv = noisy[self._nbr].mean(axis=1)  # (N, D)
 
+        # ── God Mode: isolated agents receive no neighbor signals ──
+        if np.any(self.isolated):
+            recv[self.isolated] = 0.0
+
         # 4  UPDATE: blend persistence, incoming signals, and random drive
         #    The drive prevents state collapse to zero
         drive = (
@@ -135,6 +143,11 @@ class World:
         n_msg = np.linalg.norm(msg, axis=1) + 1e-8
         n_st = np.linalg.norm(self.states, axis=1) + 1e-8
         self.self_scores = dot / (n_msg * n_st)
+
+        # ── God Mode: dead agents stay dead ────────────────────
+        if np.any(self.dead):
+            self.states[self.dead] = 0.0
+            self.self_scores[self.dead] = 0.0
 
         # 6  LEARN: update W to reduce prediction error on neighbors
         #    Loss = ‖mᵢ − sⱼᵗ⁺¹‖² averaged over the 4 neighbors j
@@ -152,6 +165,11 @@ class World:
         self.W *= 1.0 - c.weight_decay  # prevent divergence
         np.clip(self.W, -3, 3, out=self.W)
 
+        # ── God Mode: dead agents don't learn ──────────────────
+        if np.any(self.dead):
+            self.W[self.dead] = 0.0
+            self.pred_errors[self.dead] = 0.0
+
         # 7  RECORD
         self.tick += 1
         h = self.history
@@ -161,6 +179,41 @@ class World:
         h["p95_self"].append(float(np.percentile(self.self_scores, 95)))
         h["std_self"].append(float(self.self_scores.std()))
         h["mean_err"].append(float(self.pred_errors.mean()))
+
+    # ── God Mode interventions ────────────────────────────────
+
+    def kill_agent(self, row: int, col: int) -> None:
+        """Kill an agent — zero its state and weights permanently."""
+        idx = row * self.cfg.size + col
+        self.dead[idx] = True
+        self.isolated[idx] = False
+        self.states[idx] = 0.0
+        self.W[idx] = 0.0
+        self.self_scores[idx] = 0.0
+        self.pred_errors[idx] = 0.0
+
+    def isolate_agent(self, row: int, col: int) -> None:
+        """Toggle isolation — cut/restore communication."""
+        idx = row * self.cfg.size + col
+        if self.dead[idx]:
+            return
+        self.isolated[idx] = not self.isolated[idx]
+
+    def inject_agent(self, row: int, col: int) -> None:
+        """Clone the current best-performing agent into this cell."""
+        idx = row * self.cfg.size + col
+        alive_mask = ~self.dead
+        if not np.any(alive_mask):
+            return
+        scores = self.self_scores.copy()
+        scores[~alive_mask] = -2.0
+        best = int(np.argmax(scores))
+        if best == idx:
+            return
+        self.states[idx] = self.states[best].copy()
+        self.W[idx] = self.W[best].copy()
+        self.dead[idx] = False
+        self.isolated[idx] = False
 
     # ── utilities ─────────────────────────────────────────────
 

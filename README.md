@@ -78,6 +78,9 @@ python run.py --size 24 --seed 7
 | `--headless` | off | Run without visualization |
 | `--ticks` | 5000 | Max ticks in headless mode |
 | `--output` | None | Save final state to `.npz` file |
+| `--record` | None | Record grid evolution to GIF file |
+| `--record-ticks` | 2000 | Number of ticks to record |
+| `--fps` | 24 | GIF frame rate |
 
 ## Analyzing Results
 
@@ -100,6 +103,55 @@ The theoretical foundation draws from:
 - **Recursive Self-Modeling** — the hypothesis that self-awareness is what happens when a prediction system turns its predictions inward
 
 This implementation asks: if you give agents *only* the ability to predict others through a noisy channel, does self-prediction emerge as a free lunch?
+
+## God Mode — Interactive Experiments
+
+During live visualization, you can intervene directly:
+
+| Key | Action | What it does |
+|-----|--------|-------------|
+| `K` | Kill | Click an agent to permanently destroy it. State and weights go to zero. Watch how neighbors respond to the void. |
+| `I` | Isolate | Click an agent to cut its communication. It can still think, but can't hear or be heard. Does its self-model survive? |
+| `J` | Inject | Click a cell to clone the current best-performing agent into it. Does high self-modeling spread? |
+| `Esc` | Observe | Return to passive observation mode. |
+
+Dead agents show as red ✕ markers. Isolated agents show as white ○ rings.
+
+These aren't gimmicks — they're experiments. Every intervention is a question.
+
+## Recording
+
+Capture the grid evolution as a GIF:
+
+```bash
+# Record 2000 ticks at 24 fps
+python run.py --record emergence.gif
+
+# Custom duration and speed
+python run.py --record output.gif --record-ticks 5000 --fps 30 --seed 42
+```
+
+The GIF shows only the grid heatmap — clean, minimal, ready for Twitter.
+
+## What We Don't Know
+
+Honest questions this simulation raises that we can't answer:
+
+- **Why does seed 7 consistently produce a 0.94 self-model agent when seed 12 produces none?** We didn't program seed-dependent behavior. Something in the initial random geometry of weight matrices creates basins of attraction we don't understand.
+
+- **Is the high-scoring agent actually modeling itself, or just coincidentally aligned?** Cosine similarity can't distinguish between genuine self-prediction and a lucky fixed point. We don't have a test for the difference. We're not sure one exists.
+
+- **If you run this for 100,000 ticks, does it stabilize, collapse, or keep climbing?** We've observed runs that plateau, runs that oscillate, and runs that seem to slowly diverge. We don't know what determines which regime the system enters.
+
+- **Does grid topology matter?** What happens on a hexagonal grid? A random graph? A small-world network? We only tested 4-connected toroidal grids. The topology might be everything.
+
+- **Are the clusters meaningful?** High self-model agents sometimes cluster spatially. Is that a real phenomenon (self-modeling spreads through local communication) or an artifact of shared noise?
+
+- **What would happen with asymmetric communication?** Right now every agent broadcasts to all four neighbors equally. What if agents could choose who to talk to?
+
+- **Why does isolation sometimes preserve self-modeling?** When you cut an agent's communication, some maintain high self-model scores for hundreds of ticks. Others collapse immediately. We have no explanation.
+
+These aren't rhetorical questions. If you figure out any of them, publish it.
 
 ## License
 

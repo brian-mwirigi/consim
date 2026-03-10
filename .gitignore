@@ -41,6 +41,10 @@ output/
 !sweep_null.csv
 !sweep_relu.csv
 !sweep_linear.csv
+!sweep_size12_full.csv
+!sweep_size18_full.csv
+!sweep_size24_full.csv
+!sweep_size36_full.csv
 
 # Temp scripts
 analyze_sweep.py

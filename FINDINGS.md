@@ -584,4 +584,90 @@ The four MCH correlates (Φ, R, T, E) are not four independent lines of evidence
 
 ---
 
-Raw data: [sweep_1250.csv](sweep_1250.csv), [sweep_size12.csv](sweep_size12.csv), [sweep_size48.csv](sweep_size48.csv), [sweep_null.csv](sweep_null.csv)
+---
+
+## Scaling law: dimensionality collapse is an emergent phase transition
+
+The dimensionality collapse (above) was measured at size 48. The question: does it replicate at smaller sizes, or is it a large-system artifact?
+
+Five sweeps at sizes 12, 18, 24, 36, 48 (250 runs each, 10 seeds × 5 topologies × 5 noises, 1000 ticks) answer this definitively. The collapse does not replicate uniformly — it **scales with system size**, which is a stronger result.
+
+```bash
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,hex,random,small_world \
+  --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
+  --ticks 1000 --size 18 --sweep-csv sweep_size18_full.csv
+
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,hex,random,small_world \
+  --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
+  --ticks 1000 --size 36 --sweep-csv sweep_size36_full.csv
+```
+
+### PC1 variance explained on moore (5 sizes)
+
+| Size | N agents | PC1 (moore) | PC1 (random) | r(T,E) moore |
+|------|:-:|:-:|:-:|:-:|
+| 12 | 144 | 48.8% | 49.5% | −0.11 |
+| 18 | 324 | 55.9% | 38.7% | −0.25 |
+| 24 | 576 | 67.4% | 36.3% | −0.70 |
+| 36 | 1,296 | 75.1% | 47.3% | −0.78 |
+| 48 | 2,304 | 82.5% | 39.6% | −0.82 |
+
+Random stays flat at ~40% — no collapse at any size. Moore rises monotonically from 49% to 83%.
+
+### The inflection is between 324 and 576 agents
+
+Incremental PC1 gains on moore:
+
+| Transition | ΔPC1 | ΔPC1/ΔN | Δr(T,E) |
+|---|:-:|:-:|:-:|
+| 144 → 324 | +0.071 | 0.000392 | −0.14 |
+| **324 → 576** | **+0.115** | **0.000456** | **−0.45** |
+| 576 → 1,296 | +0.077 | 0.000108 | −0.08 |
+| 1,296 → 2,304 | +0.074 | 0.000073 | −0.04 |
+
+The largest absolute PC1 gain and the largest per-agent gain both occur between N=324 and N=576. The r(T,E) anti-correlation undergoes its most dramatic shift in the same interval: from −0.25 (weak) to −0.70 (strong). Below ~300 agents, the five metrics are nearly independent and the T-E dissociation barely exists. Above ~600, the metrics are locked into a single axis and the dissociation is entrenched.
+
+This is the answer to the emergence question. The constraint on consciousness correlates **emerges with scale** on structured topologies. Small systems are unconstrained — five metrics, five degrees of freedom. Large structured systems cannot simultaneously maximize all five — they collapse to one degree of freedom. Random systems never collapse at any size.
+
+### Scaling law fit
+
+Two fits to the moore PC1 vs. N data:
+
+- **Log fit:** PC1 = −0.136 + 0.124 × ln(N), R² = 0.987
+- **Power law:** PC1 = 0.188 × N^0.193, R² = 0.981
+
+Both fit well (R² > 0.98). The log fit is marginally better. This predicts PC1 → 1.0 (complete collapse) at N ≈ ~8,000 agents, though the curve must saturate before that.
+
+### PC1 loadings stabilize with scale
+
+| Size | self | Φ | R | T | E |
+|------|:-:|:-:|:-:|:-:|:-:|
+| 12 | −0.05 | −0.59 | −0.54 | +0.25 | −0.54 |
+| 18 | −0.10 | +0.58 | +0.52 | −0.21 | +0.58 |
+| 24 | −0.22 | +0.54 | +0.45 | −0.43 | +0.53 |
+| 36 | −0.28 | +0.51 | +0.46 | −0.44 | +0.51 |
+| 48 | −0.38 | +0.48 | +0.45 | −0.44 | +0.49 |
+
+At size 12, the loadings are noisy and the PC1 sign is flipped (the axis hasn't formed yet). By size 24, the autonomy-predictability axis is clear: {Φ, R, E} load positive, {self, T} load negative. Sizes 36 and 48 load identically — the axis has converged.
+
+### Full topology comparison across sizes
+
+| Topology | PC1 @12 | PC1 @18 | PC1 @24 | PC1 @36 | PC1 @48 |
+|----------|:-:|:-:|:-:|:-:|:-:|
+| von_neumann | 39.4% | 46.1% | 41.5% | 48.6% | 45.8% |
+| moore | 48.8% | 55.9% | 67.4% | 75.1% | 82.5% |
+| hex | 47.7% | 57.9% | 57.2% | 71.6% | 78.4% |
+| random | 49.5% | 38.7% | 36.3% | 47.3% | 39.6% |
+| small_world | 41.3% | 42.8% | 41.2% | 41.3% | 48.7% |
+
+Moore and hex diverge sharply from the others with scale. Von Neumann, random, and small_world remain flat at ~40–49%. The collapse is specific to high-K structured topologies.
+
+### Implication
+
+The scaling law is the headline finding. It answers the question the project started with: does anything *emerge* from scale? Yes. **The constraint on consciousness correlates emerges with scale.** Not consciousness itself — but the structural impossibility of independently maximizing its correlates. This is a phase-like transition: below ~300 agents on a Moore grid, the correlates are unconstrained. Above ~600, they collapse to one axis. The transition sharpens between N=324 and N=576.
+
+---
+
+Raw data: [sweep_1250.csv](sweep_1250.csv), [sweep_size12.csv](sweep_size12.csv), [sweep_size48.csv](sweep_size48.csv), [sweep_null.csv](sweep_null.csv), [sweep_size18_full.csv](sweep_size18_full.csv), [sweep_size24_full.csv](sweep_size24_full.csv), [sweep_size36_full.csv](sweep_size36_full.csv)

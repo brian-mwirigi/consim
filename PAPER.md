@@ -326,7 +326,7 @@ Three implications follow:
 
 Code (MIT license), data (4,180 runs), and all analysis scripts are publicly available at github.com/brian-mwirigi/consim.
 
-**Acknowledgment.** AI tools (GitHub Copilot) assisted with coding.
+**Acknowledgment.** GitHub Copilot was used for code assistance during development.
 
 ---
 

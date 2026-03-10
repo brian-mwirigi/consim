@@ -26,8 +26,27 @@ desktop.ini
 
 # Experiment outputs
 *.npz
-*.csv
 results/
+
+# Internal working notes (not for publishing)
+ABSTRACT.md
+FINDINGS.md
+THEORY.md
+STEPHEN_FITZ_NOTES.md
+FUTURE_WORK.md
+
+# Ad-hoc test artifacts
+crossover_results.txt
+crossover_test.py
+
+# Build / packaging artifacts
+arxiv_submission.zip
+consim_paper.pdf
+PAPER.pdf
+PAPER.aux
+PAPER.log
+PAPER.out
+PAPER.toc
 
 # Private notes
 STEPHEN_FITZ_NOTES.md

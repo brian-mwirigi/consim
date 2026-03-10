@@ -324,7 +324,7 @@ Three implications follow:
 
 3. **For the MCH:** In a partial implementation of Fitz's framework (see Section 5.6), the four correlates cannot be simultaneously maximized. They lie on a Pareto frontier determined by network topology.
 
-Code, data (4,180 runs), and all analysis scripts are publicly available at github.com/brian-mwirigi/consim under CC BY 4.0.
+Code (MIT license), data (4,180 runs), and all analysis scripts are publicly available at github.com/brian-mwirigi/consim.
 
 **Acknowledgment.** AI tools (GitHub Copilot) assisted with coding.
 

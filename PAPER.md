@@ -91,7 +91,7 @@ All runs: 1,000 ticks. Noise levels: $\sigma_{\text{noise}} \in \{0.04, 0.08, 0.
 
 ### 3.1 Structural Effects of Topology
 
-**Finding 1: Random graph noise immunity.** On random topologies, all metrics stay invariant across a 7.5x noise range ($\sigma = 0.04$ to $0.30$): mean self-prediction varies by $< 0.001$, $\Phi$ by $< 0.007$, $R$ by $0.001$, $T$ by $0.0006$. This is explained by applying the law of large numbers twice: noise cancels over $K$ independent neighbors (received signal) and over $N$ agents (population mean). Grid topologies do not have this property because spatially adjacent neighbors are correlated.
+**Finding 1: Random graph noise immunity.** On random topologies, all metrics stay invariant across a 7.5x noise range ($\sigma = 0.04$ to $0.30$): mean self-prediction varies by $< 0.003$, $\Phi$ by $< 0.003$, $R$ by $0.001$, $T$ by $0.0006$. This is explained by applying the law of large numbers twice: noise cancels over $K$ independent neighbors (received signal) and over $N$ agents (population mean). Grid topologies do not have this property because spatially adjacent neighbors are correlated.
 
 **Finding 2: Noise amplification on high-$K$ grids.** Moore topology ($K = 8$) shows monotonic increase in self-prediction with noise: $+0.018$ at size 24, $+0.031$ at size 12. The mechanism is symmetry-breaking: noise decorrelates adjacent agents whose inputs heavily overlap, creating diversity that enriches the learning gradient. This needs both noise tolerance (high $K$) and redundancy to break (spatial structure).
 
@@ -114,7 +114,7 @@ Agents whose trajectories are externally driven (low $E$) but whose self-models 
 | Topology | $r(T,E)$ learning | $r(T,E)$ null | $\Delta$ |
 |---|:-:|:-:|:-:|
 | Moore | -0.82 | -0.79 | 0.03 |
-| Hex | -0.74 | -0.70 | 0.04 |
+| Hex | -0.74 | -0.69 | 0.05 |
 | von Neumann | +0.07 | +0.11 | 0.04 |
 
 The trade-off is geometric: the state update dynamics and topology alone produce it. Learning at $\eta = 0.003$ over 1,000 ticks changes self-prediction by $< 0.1\%$.
@@ -135,10 +135,10 @@ The trade-off arises from network structure, not from the specific nonlinearity.
 
 | Topology | $r(E, \Phi)$ | Linear slope | RMSE |
 |---|:-:|:-:|:-:|
-| von Neumann | +0.998 | 0.327 | 0.003 |
+| von Neumann | +0.998 | 0.297 | 0.002 |
 | Moore | +0.994 | 0.349 | 0.005 |
-| Hex | +0.996 | 0.337 | 0.004 |
-| Small-world | +0.984 | 0.321 | 0.007 |
+| Hex | +0.996 | 0.296 | 0.003 |
+| Small-world | +0.984 | 0.193 | 0.004 |
 | Random | +0.178 | 0.008 | n/a |
 
 On structured networks, $\Phi$ measures causal self-determination, not topology-agnostic information integration. The equivalence breaks on random graphs because independent neighbor sampling destroys the link between an agent's self-determination and its neighborhood prediction structure. This has implications for IIT: $\Phi$ partitions may conflate integration with autonomy in any system with spatial correlations.
@@ -157,7 +157,7 @@ The PC1 loadings form a consistent "autonomy-predictability axis":
 
 | Metric | tanh | Linear | ReLU |
 |---|:-:|:-:|:-:|
-| self | -0.38 | -0.27 | -0.35 |
+| self | -0.37 | -0.27 | -0.35 |
 | $\Phi$ | **+0.48** | **+0.52** | **+0.52** |
 | $R$ | +0.45 | +0.45 | +0.27 |
 | $T$ | **-0.44** | **-0.44** | **-0.48** |
@@ -326,7 +326,7 @@ Three implications follow:
 
 Code, data (4,180 runs), and all analysis scripts are publicly available at github.com/brian-mwirigi/consim under CC BY 4.0.
 
-**Acknowledgment.** AI tools (GitHub Copilot) assisted with coding and writing.
+**Acknowledgment.** AI tools (GitHub Copilot) assisted with coding.
 
 ---
 

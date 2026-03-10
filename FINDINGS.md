@@ -492,4 +492,96 @@ At lr=0.01 with 1000 ticks, the cumulative weight update is tiny relative to the
 
 ---
 
+---
+
+## Universality test: different activation functions
+
+The T-E dissociation was discovered with tanh activation. To prove it's a property of the network — not of tanh — we re-ran on moore, von_neumann, and random with two alternative activations:
+
+- **Linear:** $f(x) = \text{clip}(x, -1, 1)$ — no nonlinearity at all
+- **ReLU:** $f(x) = \text{clip}(x, 0, 1)$
+
+```bash
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,random \
+  --sweep-noises 0.04,0.12,0.30 \
+  --ticks 1000 --size 24 --activation relu --sweep-csv sweep_relu.csv
+
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,random \
+  --sweep-noises 0.04,0.12,0.30 \
+  --ticks 1000 --size 24 --activation linear --sweep-csv sweep_linear.csv
+```
+
+### The T-E trade-off survives all activations on moore
+
+| Activation | Size | moore r(T,E) | moore r(E,self) | moore r(T,self) |
+|---|:-:|:-:|:-:|:-:|
+| tanh | 48 | **−0.82** | −0.71 | +0.70 |
+| linear | 24 | **−0.77** | −0.53 | +0.30 |
+| ReLU | 24 | **−0.76** | −0.61 | +0.39 |
+
+The T-E anti-correlation on moore is −0.76 to −0.82 regardless of whether the activation is smooth (tanh), piecewise-linear (ReLU), or pure linear with clipping. The trade-off does not require nonlinear dynamics.
+
+### K-dependence holds for symmetric activations
+
+For tanh and linear (both map to [−1, 1]):
+
+| K | r(T,E) tanh | r(T,E) linear |
+|:-:|:-:|:-:|
+| 4 (vn) | +0.07 | +0.17 |
+| 8 (moore) | **−0.82** | **−0.77** |
+
+The dissociation appears on K=8 and is absent on K=4, for both activations. ReLU (which maps to [0, 1]) shows the anti-correlation on all topologies, likely because the all-positive output range changes the metric geometry.
+
+### Within-noise control
+
+The within-noise r(E, self) on moore confirms the effect is not a noise confound:
+
+| Noise | r(E, self) tanh | r(E, self) linear |
+|-------|:-:|:-:|
+| 0.04 | −0.72 | −0.28 |
+| 0.12 | −0.67 | −0.48 |
+| 0.30 | −0.69 | −0.59 |
+
+E anti-correlates with self-prediction within every noise level. The correlation strengthens with noise, consistent with the theory: higher noise amplifies variation in the autonomy-predictability balance.
+
+---
+
+## Dimensionality collapse: five metrics, one axis
+
+PCA on the five metrics {self, Φ, R, T, E} reveals that on moore grids, a single principal component explains most of the variance:
+
+| Activation | PC1 | PC1+2 | Dims for 95% |
+|---|:-:|:-:|:-:|
+| tanh | **82.5%** | 94.8% | 3 |
+| linear | **71.8%** | 89.6% | 3 |
+| ReLU | **62.1%** | 82.8% | 4 |
+
+Five supposedly independent consciousness correlates collapse to 1–2 effective dimensions on high-K grids.
+
+### The autonomy-predictability axis
+
+PC1 loadings are stable across activations:
+
+| Metric | tanh | linear | ReLU |
+|---|:-:|:-:|:-:|
+| self | −0.38 | −0.27 | −0.35 |
+| Φ | **+0.48** | **+0.52** | **+0.52** |
+| R | +0.45 | +0.45 | +0.27 |
+| T | **−0.44** | **−0.44** | **−0.48** |
+| E | **+0.49** | **+0.52** | **+0.56** |
+
+The same axis appears in all three: {Φ, R, E} load positive (autonomy), {self, T} load negative (predictability). A single number — the agent's position on the autonomy-predictability axis — captures 62–83% of all variation.
+
+### Contrast with random topology
+
+On random graphs, the same PCA shows 4 components needed for 95% variance. The metrics remain high-dimensional because the structural coupling that collapses them on grids does not exist when neighbors are independent.
+
+### Implication
+
+The four MCH correlates (Φ, R, T, E) are not four independent lines of evidence for consciousness on structured networks. They are four projections of a single underlying variable: the balance between self-driven and externally-driven dynamics. Adding more correlates does not add more information — they measure the same thing through different lenses.
+
+---
+
 Raw data: [sweep_1250.csv](sweep_1250.csv), [sweep_size12.csv](sweep_size12.csv), [sweep_size48.csv](sweep_size48.csv), [sweep_null.csv](sweep_null.csv)

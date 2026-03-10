@@ -37,6 +37,7 @@ class Config:
     gol_enabled: bool = False  # Game of Life substrate layer
     gol_coupling: float = 0.1  # strength of GoL signal injected into agents
     gol_density: float = 0.5  # initial fraction of alive GoL cells
+    activation: str = "tanh"  # activation function: tanh, sigmoid, relu, linear
 
 
 class World:
@@ -74,6 +75,9 @@ class World:
         self.W = self.rng.standard_normal((N, D, D)).astype(np.float32) * (0.5 / D)
         eye = np.eye(D, dtype=np.float32)
         self.W += eye[None, :, :] * 0.15
+
+        # ── activation function ────────────────────────────────
+        self._act, self._act_grad = self._build_activation(c.activation)
 
         # ── topology ──────────────────────────────────────────
         self._nbr = self._build_neighbors()
@@ -133,6 +137,33 @@ class World:
             np.roll(n, -1, axis=1), np.roll(n, 1, axis=1),
             np.roll(so, -1, axis=1), np.roll(so, 1, axis=1),
         ], axis=-1).reshape(self.N, 8)
+
+    @staticmethod
+    def _build_activation(name):
+        """Return (activation_fn, gradient_fn) pair for the given name."""
+        if name == "tanh":
+            def act(x):
+                return np.tanh(x)
+            def grad(output):
+                return 1.0 - output ** 2
+        elif name == "sigmoid":
+            def act(x):
+                return 1.0 / (1.0 + np.exp(-np.clip(x, -15, 15)))
+            def grad(output):
+                return output * (1.0 - output)
+        elif name == "relu":
+            def act(x):
+                return np.clip(x, 0, 1)
+            def grad(output):
+                return ((output > 0) & (output < 1)).astype(np.float32)
+        elif name == "linear":
+            def act(x):
+                return np.clip(x, -1, 1)
+            def grad(output):
+                return ((output > -1) & (output < 1)).astype(np.float32)
+        else:
+            raise ValueError(f"Unknown activation: {name}")
+        return act, grad
 
     def _build_neighbors(self) -> np.ndarray:
         """Build neighbor index array based on configured topology."""
@@ -221,8 +252,8 @@ class World:
         old = self.states.copy()
 
         # 1  BROADCAST: each agent transforms its state into a message
-        #    mᵢ = tanh(Wᵢ · sᵢ)
-        msg = np.tanh(np.einsum("nij,nj->ni", self.W, self.states))
+        #    mᵢ = act(Wᵢ · sᵢ)
+        msg = self._act(np.einsum("nij,nj->ni", self.W, self.states))
 
         # 2  LOSSY CHANNEL: add Gaussian noise
         noisy = msg + self.rng.standard_normal(msg.shape).astype(np.float32) * c.noise
@@ -245,7 +276,7 @@ class World:
         drive = (
             self.rng.standard_normal(self.states.shape).astype(np.float32) * c.drive
         )
-        self.states = np.tanh(c.persistence * self.states + (1 - c.persistence) * recv + drive)
+        self.states = self._act(c.persistence * self.states + (1 - c.persistence) * recv + drive)
 
         # 5  SELF-MODEL SCORE: cosine similarity between what the agent
         #    broadcast (trained for predicting others) and what it became.
@@ -266,8 +297,8 @@ class World:
         avg_err = err.mean(axis=1)  # (N, D)
         self.pred_errors = np.linalg.norm(avg_err, axis=1)
 
-        #    Gradient through tanh: d/dz tanh(z) = 1 − tanh²(z)
-        grad_act = 1.0 - msg ** 2  # (N, D)
+        #    Gradient through activation function
+        grad_act = self._act_grad(msg)  # (N, D)
         scaled = avg_err * grad_act  # (N, D)
         dW = np.einsum("ni,nj->nij", scaled, old)  # (N, D, D)
 
@@ -301,7 +332,7 @@ class World:
 
         # 10 E (CAUSAL EFFICACY): how self-determined is the trajectory?
         #    Compare actual state change to counterfactual without neighbors
-        self_only = np.tanh(c.persistence * old + drive)
+        self_only = self._act(c.persistence * old + drive)
         delta_actual = self.states - old  # (N, D)
         delta_self = self_only - old  # (N, D)
         dot_e = np.einsum("ni,ni->n", delta_actual, delta_self)

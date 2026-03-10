@@ -103,6 +103,7 @@ def run_sweep(
     gol_enabled: bool = False,
     gol_coupling: float = 0.1,
     gol_density: float = 0.5,
+    activation: str = "tanh",
 ) -> List[Dict[str, Any]]:
     """
     Run a parameter sweep across seeds, topologies, and noise levels.
@@ -125,6 +126,7 @@ def run_sweep(
                     topology=topo, seed=seed,
                     gol_enabled=gol_enabled, gol_coupling=gol_coupling,
                     gol_density=gol_density,
+                    activation=activation,
                 )
                 world = World(cfg)
 

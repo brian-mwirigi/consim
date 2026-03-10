@@ -53,6 +53,8 @@ def main():
                    help="noise levels for sweep, comma-separated (default: 0.12)")
     p.add_argument("--sweep-csv", type=str, default="sweep_results.csv", help="output CSV for sweep (default: sweep_results.csv)")
     p.add_argument("--gol", action="store_true", help="enable Game of Life substrate layer")
+    p.add_argument("--activation", type=str, default="tanh",
+                   help="activation function: tanh, sigmoid, relu, linear (default: tanh)")
     p.add_argument("--gol-coupling", type=float, default=0.1, help="GoL signal coupling strength (default: 0.1)")
     p.add_argument("--gol-density", type=float, default=0.5, help="initial GoL cell density (default: 0.5)")
     args = p.parse_args()
@@ -71,6 +73,7 @@ def main():
         gol_enabled=args.gol,
         gol_coupling=args.gol_coupling,
         gol_density=args.gol_density,
+        activation=args.activation,
     )
 
     world = World(cfg)
@@ -81,7 +84,7 @@ def main():
     print("  " + "\u2500" * 40)
     print(f"  {cfg.size}\u00d7{cfg.size} grid  \u00b7  {n_agents:,} agents  \u00b7  {cfg.dim}D state")
     print(f"  noise={cfg.noise}  lr={cfg.lr}  persistence={cfg.persistence}  drive={cfg.drive}")
-    print(f"  topology={cfg.topology}")
+    print(f"  topology={cfg.topology}  activation={cfg.activation}")
     if cfg.gol_enabled:
         print(f"  GoL substrate: coupling={cfg.gol_coupling}  density={cfg.gol_density}")
     if cfg.seed is not None:
@@ -118,6 +121,7 @@ def main():
             gol_enabled=args.gol,
             gol_coupling=args.gol_coupling,
             gol_density=args.gol_density,
+            activation=args.activation,
         )
 
     elif args.record:

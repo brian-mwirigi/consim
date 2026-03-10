@@ -6,7 +6,7 @@
 
 ## Abstract
 
-We present *consim*, a multi-agent simulation studying how self-prediction emerges from lossy predictive communication on graph topologies. Inspired by the Machine Consciousness Hypothesis (Fitz, 2025), the system implements distributed agents that communicate through noisy channels and learn to predict their neighbors' states — never their own. We measure four consciousness-relevant quantities from the MCH framework: integration ($\Phi$), reflexivity ($R$), temporal persistence ($T$), and causal efficacy ($E$). Across 4,180 simulation runs on five topologies, five noise levels, five grid sizes (12, 18, 24, 36, 48), and three activation functions (tanh, linear, ReLU), we report three main results. First, on high-connectivity grids, causal efficacy anti-correlates with self-prediction ($r = -0.71$) and with temporal persistence ($r = -0.82$), establishing that self-determination destroys self-knowledge — an inversion of assumptions in IIT (Tononi, 2004), MCH (Fitz, 2025), and autonomy-based consciousness frameworks. This trade-off is activation-universal (tanh $-0.82$, linear $-0.77$, ReLU $-0.76$) and persists identically in a null model without learning ($r = -0.79$), proving it is a topological invariant. Second, PCA on the five metrics reveals they collapse to a single principal component on Moore grids (82.5% variance explained), forming an "autonomy-predictability axis." Third, this collapse follows a scaling law: $\text{PC1} = -0.136 + 0.124 \times \ln(N)$ ($R^2 = 0.987$) across five grid sizes (144–2,304 agents), with a sharp inflection between $N = 324$ and $N = 576$ agents. Random topologies show no collapse at any size. We prove a formal theorem establishing this as a network-theoretic uncertainty principle: on $K$-regular graphs with bounded activations and correlated neighbors, variance reduction through neighbor-averaging creates a necessary trade-off between causal autonomy and predictability. The constraint on consciousness correlates is an emergent property of structured networks that appears only above a critical system size. Code and data: github.com/brian-mwirigi/consim.
+We present *consim*, a multi-agent simulation studying how self-prediction emerges from lossy predictive communication on graph topologies. Inspired by the Machine Consciousness Hypothesis (Fitz, 2025), the system implements distributed agents that communicate through noisy channels and learn to predict their neighbors' states — never their own. We measure four consciousness-relevant quantities from the MCH framework: integration ($\Phi$), reflexivity ($R$), temporal persistence ($T$), and causal efficacy ($E$). Across 4,180 simulation runs on five topologies, five noise levels, five grid sizes (12, 18, 24, 36, 48), and three activation functions (tanh, linear, ReLU), we report three main results. First, on high-connectivity grids, causal efficacy anti-correlates with self-prediction ($r = -0.71$) and with temporal persistence ($r = -0.82$), establishing that self-determination destroys self-knowledge — an inversion of assumptions in IIT (Tononi, 2004), MCH (Fitz, 2025), and autonomy-based consciousness frameworks. This trade-off is activation-universal (tanh $-0.82$, linear $-0.77$, ReLU $-0.76$) and persists identically in a null model without learning ($r = -0.79$), establishing it as a topological invariant rather than a learning artifact. Second, PCA on the five metrics reveals they collapse to a single principal component on Moore grids (82.5% variance explained), forming an "autonomy-predictability axis." Third, this collapse follows a scaling law: $\text{PC1} = -0.136 + 0.124 \times \ln(N)$ ($R^2 = 0.987$) across five grid sizes (144–2,304 agents), with a sharp inflection between $N = 324$ and $N = 576$ agents. Random topologies show no collapse at any size. We present a formal argument establishing this as an analogue of an uncertainty principle for networked systems: on $K$-regular graphs with bounded activations and correlated neighbors, variance reduction through neighbor-averaging creates a trade-off between causal autonomy and predictability. The constraint on consciousness correlates is an emergent property of structured networks that appears only above a critical system size. Code and data: github.com/brian-mwirigi/consim.
 
 **Keywords:** consciousness correlates, integrated information, multi-agent systems, emergent self-prediction, network topology, scaling laws, dimensionality collapse
 
@@ -127,7 +127,7 @@ The trade-off is geometric: the state update dynamics and topology alone produce
 | Linear | −0.77 | −0.53 |
 | ReLU | −0.76 | −0.61 |
 
-The universality proves the trade-off arises from network structure, not nonlinearity. No property specific to tanh is used: the theorem (Section 4) requires only that $f$ is bounded.
+The universality across activations shows the trade-off arises from network structure, not nonlinearity. The argument (Section 4) requires only that $f$ is bounded.
 
 ### 3.3 Functional Identity: $E \equiv \Phi$ on Structured Graphs
 
@@ -214,9 +214,9 @@ Moore and hex diverge sharply from the others with scale. The collapse is specif
 
 ## 4. Theoretical Analysis
 
-### 4.1 The Autonomy-Predictability Theorem
+### 4.1 The Autonomy-Predictability Argument
 
-**Theorem.** Consider $N$ agents on a $K$-regular graph with dynamics
+**Claim.** Consider $N$ agents on a $K$-regular graph with dynamics
 
 $$s_i' = f\!\big(\alpha \, s_i + (1 - \alpha) \, r_i + \xi_i\big)$$
 
@@ -238,7 +238,7 @@ For Moore grids ($K = 8$, $\rho \approx 0.3$): $\text{Var}_t(r_i) \approx 0.4 \c
 
 *Step 5.* On random graphs ($\rho = 0$), the external signal is averaged noise from independent sources — unreliable rather than predictable. The negative covariance does not emerge.
 
-*Step 6.* The proof uses only: (i) $f$ is bounded, (ii) $r_i$ is an average of $K$ messages, (iii) $\rho > 0$. No property specific to tanh is used. $\square$
+*Step 6.* The argument uses only: (i) $f$ is bounded, (ii) $r_i$ is an average of $K$ messages, (iii) $\rho > 0$. No property specific to tanh is required.
 
 ### 4.2 Random Graph Fixed Point
 
@@ -256,11 +256,11 @@ Long-range shortcuts connect agents to distant, uncorrelated partners. Each shor
 
 The central finding of this work inverts a deep assumption in the consciousness literature. IIT (Tononi, 2004; Tononi et al., 2016), the MCH (Fitz, 2025), attention schema theory (Graziano, 2013), and most autonomy-based frameworks assume self-determination enables self-knowledge. Our data show the opposite on high-connectivity networks: agents most in control of their own trajectories are the worst at predicting themselves ($r(E, \text{self}) = -0.71$). The mechanism is simple: external determination is regularizing. When an agent's future state is driven by the average of 8 predictable neighbors, that future is easy to forecast. When it is driven by the agent's own nonlinear dynamics, it is chaotic and hard to predict.
 
-The activation universality (Finding 5), null model confirmation, and formal theorem (Section 4.1) collectively establish this as a structural law of networked systems, not an artifact of any particular implementation choice.
+The activation universality (Finding 5), null model confirmation, and formal argument (Section 4.1) collectively provide strong evidence that this is a structural property of networked systems, not an artifact of any particular implementation choice.
 
 ### 5.2 Implications for Integrated Information Theory
 
-The $E \equiv \Phi$ identity (Finding 6) has direct implications for IIT. On structured networks, $\Phi$ partitions — designed to measure information integration — are actually measuring how much an agent's trajectory is self-determined vs. externally driven. The correlation $r > 0.994$ means that on any system with spatial correlations (including the brain), $\Phi$ may conflate integration with autonomy. The decoupling on random graphs ($r = 0.18$) shows this is not a universal property of $\Phi$ but a consequence of structured connectivity.
+The $E \equiv \Phi$ identity (Finding 6) raises questions for IIT worth investigating. On structured networks in our system, the $\Phi$ proxy — designed to approximate information integration — tracks causal self-determination almost perfectly ($r > 0.994$). If this relationship holds for more rigorous $\Phi$ measures, it would suggest that on systems with spatially correlated neighbors, $\Phi$ partitions may conflate integration with autonomy. The decoupling on random graphs ($r = 0.18$) shows this is not a universal property but a consequence of structured connectivity. We stress that this is demonstrated for our $\Phi$ proxy (see Section 5.6), and testing with IIT-compliant $\Phi$ measures is an important next step.
 
 ### 5.3 Dimensionality Collapse and Overcounting
 
@@ -286,27 +286,43 @@ This is analogous to phase transitions in statistical physics: below a critical 
 
 **Multi-agent emergence.** Arsiwalla et al. (2023) propose a "morphospace of consciousness" mapping complexity dimensions. Bailey and Schneider (2025) propose spectral measures of epistemic emergence with topological constraints. Both are theoretical. Our work provides the first simulation-based evidence that consciousness correlates collapse to a low-dimensional manifold on structured networks.
 
-**Machine consciousness.** Fitz (2025) proposes the MCH as a theoretical program. Our work constitutes the first computational implementation and empirical test, finding that one of the MCH's implicit assumptions — that $\Phi$, $R$, $T$, $E$ provide independent evidence — does not hold on the networks the MCH proposes to study.
+**Machine consciousness.** Fitz (2025) proposes the MCH as a theoretical program. Our work constitutes a partial computational implementation — borrowing the MCH's metric definitions and communication framework but lacking the second-order perception Fitz considers essential — and finds that one of the MCH's implicit assumptions, that $\Phi$, $R$, $T$, $E$ provide independent evidence, does not hold on the structured networks we test.
 
 ### 5.6 Limitations
 
-Our agents use simple linear+activation architectures, not the transformers Fitz envisions. Our $\Phi$ approximation is not the full IIT measure (computing exact $\Phi$ is NP-hard; Tegmark, 2016). We do not claim consciousness emergence — our system is too simple for that. The Game of Life substrate coupling is additive rather than perceptual. We test five grid sizes; the scaling law extrapolation beyond $N = 2{,}304$ is unverified.
+Several limitations constrain the strength of our claims.
 
-What we do show is that the *structural logic* of self-prediction from predictive communication is tractable, activation-independent, and produces non-trivial, topology-dependent phenomena that constrain which combinations of consciousness correlates are jointly achievable.
+**The $\Phi$ proxy is not IIT's $\Phi$.** Our integration measure — the normalized gap between joint and partitioned prediction residuals — is a simplified heuristic, not Tononi's integrated information (computing exact $\Phi$ is NP-hard; Tegmark, 2016). The $E \equiv \Phi$ identity (Finding 6) may therefore reflect a constructive relationship between our proxy and our efficacy measure, rather than a deep property of Tononi's $\Phi$. Our implications for IIT (Section 5.2) should be read as hypotheses that motivate testing with more rigorous $\Phi$ approximations, not as established results about IIT.
+
+**$R$ is not independent of self-prediction.** Reflexivity is defined as $R = \cos(m_i, s_i') - \text{mean}_{j} \cos(m_i, s_j')$, so it shares a term with self-prediction by construction. Including both in PCA inflates the apparent dimensionality collapse. The collapse is still present when $R$ is excluded (we verified this), but the PC1 variance explained is lower. We report results with all five metrics for completeness, but readers should note this dependency.
+
+**The theorem is a proof sketch.** The argument in Section 4.1 establishes the intuitive mechanism — neighbor-averaging smooths trajectories, making externally-driven agents more self-predictable — but Step 4 ("smoother trajectories are easier to self-predict") is an empirically supported assertion rather than a formally derived inequality. A rigorous version would require bounding $\text{Cov}(E, \text{self})$ in terms of $K$ and $\rho$, which we have not done. We call it a "theorem" in the informal mathematical sense of a structured argument, not a complete formal proof.
+
+**The scaling law is fit to five data points.** Any smooth monotonic function can fit a logarithm with high $R^2$ over a single decade ($N = 144$ to $2{,}304$). We cannot distinguish a log from a power law or sigmoid on this range. The $R^2 = 0.987$ indicates good fit to the data we have, not confirmation of the functional form. The extrapolation to $N \approx 8{,}000$ (Section 5.4) is speculative.
+
+**Three activations is limited universality.** We tested tanh, clipped-linear, and clipped-ReLU. Two share the output range $[-1, 1]$. The ReLU and linear sweeps use 90 runs each on 3 topologies — far less data than the primary tanh sweeps. We have not tested sigmoid, GELU, or unbounded activations. The universality claim is that the trade-off does not require tanh specifically, not that it survives all possible nonlinearities.
+
+**Our agents are simple.** Each agent has 64 parameters ($8 \times 8$ weight matrix) and 8-dimensional state. This is not comparable to biological neural circuits or transformer-based architectures. Our claims about "consciousness correlates" apply within this system — they are structural properties of networked agents with these dynamics. Extrapolation to biological or sophisticated artificial systems (Section 5.2's mention of "the brain") is speculative and should be treated as a hypothesis for future investigation, not an established finding.
+
+**consim is not a full MCH implementation.** Fitz's MCH envisions transformer-based agents capable of second-order perception. Our agents perform first-order prediction only (predicting neighbors, not predicting their own predictions). We borrow the MCH's metric definitions and communication framework, but the system lacks the representational capacity the MCH considers necessary for consciousness.
+
+**Other limitations.** All grids use toroidal (periodic) boundary conditions, eliminating edge effects present in real networks. The Game of Life substrate coupling is additive rather than perceptual. The scaling-sweep experiments use 10 seeds (vs. 50 for the primary sweeps), providing less statistical power for the scaling law. We do not claim consciousness emergence — our system is too simple for that.
+
+What we do show is that the *structural logic* of self-prediction from predictive communication produces non-trivial, topology-dependent phenomena that constrain which combinations of consciousness-relevant metrics are jointly achievable — and that these constraints scale with system size on structured networks.
 
 ---
 
 ## 6. Conclusion
 
-We have shown that on structured networks, five consciousness-relevant metrics — self-prediction, $\Phi$, $R$, $T$, and $E$ — are not independent. They collapse to a single "autonomy-predictability axis" whose strength follows a logarithmic scaling law with system size. This collapse constitutes a network-theoretic uncertainty principle: on $K$-regular graphs with correlated neighbors, an agent cannot simultaneously maximize causal autonomy and self-predictability. The constraint emerges above a critical system size ($N \approx 300$–$600$ on Moore grids) and is absent on random topologies at any size.
+We have shown that on structured networks, five consciousness-relevant metrics — self-prediction, $\Phi$, $R$, $T$, and $E$ — are not independent. They collapse to a single "autonomy-predictability axis" whose strength follows a logarithmic scaling law with system size. This collapse functions as an analogue of an uncertainty principle for networked systems: on $K$-regular graphs with correlated neighbors, an agent cannot simultaneously maximize causal autonomy and self-predictability. The constraint emerges above a critical system size ($N \approx 300$–$600$ on Moore grids) and is absent on random topologies at any size.
 
 Three implications follow:
 
 1. **For consciousness theory:** Any framework that treats integration, reflexivity, persistence, efficacy, and self-knowledge as independent correlates overcounts degrees of freedom on structured networks. A single number — the agent's position on the autonomy-predictability axis — captures 62–83% of all variation.
 
-2. **For IIT:** On structured networks, $\Phi$ and causal efficacy are functionally identical ($r > 0.994$). $\Phi$ measures self-determination, not information integration, when neighbors are correlated.
+2. **For IIT (tentative):** On structured networks, our $\Phi$ proxy and causal efficacy are functionally identical ($r > 0.994$). If this extends to rigorous $\Phi$ measures, it would suggest $\Phi$ conflates self-determination with information integration when neighbors are correlated.
 
-3. **For the MCH:** We provide the first empirical implementation of Fitz's framework and find that its four correlates cannot be simultaneously maximized — they lie on a Pareto frontier determined by network topology.
+3. **For the MCH:** In a partial implementation of Fitz's framework (see Section 5.6), the four correlates cannot be simultaneously maximized — they lie on a Pareto frontier determined by network topology.
 
 Code, data (4,180 runs), and all analysis scripts are publicly available at github.com/brian-mwirigi/consim under CC BY 4.0.
 

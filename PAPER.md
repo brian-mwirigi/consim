@@ -1,6 +1,6 @@
 # Topology Determines Emergent Self-Prediction in Multi-Agent Communication Networks: A Scaling Law for Consciousness Correlate Collapse
 
-**Brian Mwirigi**
+**Brian Munene Mwirigi**
 
 ---
 

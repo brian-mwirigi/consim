@@ -1,0 +1,1092 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+  11pt,
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Topology Determines Emergent Self-Prediction in Multi-Agent Communication Networks: A Scaling Law for Consciousness Correlate Collapse}
+\author{Brian Munene Mwirigi}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Abstract}\label{abstract}
+
+This paper presents \emph{consim}, a multi-agent simulation that studies
+how self-prediction emerges from lossy predictive communication on graph
+topologies. The system is inspired by the Machine Consciousness
+Hypothesis (Fitz, 2025). It places distributed agents on a network where
+they communicate through noisy channels and learn to predict their
+neighbors' states, but never their own. I measure four
+consciousness-relevant quantities from the MCH framework: integration
+(\(\Phi\)), reflexivity (\(R\)), temporal persistence (\(T\)), and
+causal efficacy (\(E\)). Across 4,180 simulation runs on five
+topologies, five noise levels, five grid sizes (12, 18, 24, 36, 48), and
+three activation functions (tanh, linear, ReLU), I report three main
+results. First, on high-connectivity grids, causal efficacy
+anti-correlates with self-prediction (\(r = -0.71\)) and with temporal
+persistence (\(r = -0.82\)). Self-determination destroys self-knowledge,
+which inverts assumptions in IIT (Tononi, 2004), MCH (Fitz, 2025), and
+autonomy-based consciousness frameworks. This trade-off holds across all
+three activations (tanh \(-0.82\), linear \(-0.77\), ReLU \(-0.76\)) and
+persists identically in a null model without learning (\(r = -0.79\)),
+making it a topological invariant rather than a learning artifact.
+Second, PCA on the five metrics shows they collapse to a single
+principal component on Moore grids (82.5\% variance explained), forming
+an ``autonomy-predictability axis.'' Third, this collapse follows a
+scaling law: \(\text{PC1} = -0.136 + 0.124 \times \ln(N)\)
+(\(R^2 = 0.987\)) across five grid sizes (144 to 2,304 agents), with a
+sharp inflection between \(N = 324\) and \(N = 576\) agents. Random
+topologies show no collapse at any size. I present a formal argument
+that this works like an uncertainty principle for networked systems: on
+\(K\)-regular graphs with bounded activations and correlated neighbors,
+variance reduction through neighbor-averaging forces a trade-off between
+causal autonomy and predictability. The constraint on consciousness
+correlates is an emergent property of structured networks that only
+appears above a critical system size. Code and data:
+github.com/brian-mwirigi/consim.
+
+\textbf{Keywords:} consciousness correlates, integrated information,
+multi-agent systems, emergent self-prediction, network topology, scaling
+laws, dimensionality collapse
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Introduction}\label{introduction}
+
+Theories of consciousness use multiple measurable correlates:
+integration (Tononi, 2004; Tononi et al., 2016), temporal stability
+(Baars, 1988), causal efficacy (Seth, 2014; Seth \& Bayne, 2022), and
+self-modeling (Graziano, 2013; Cleeremans, 2011). These theories tend to
+assume the correlates can be independently optimized. The Machine
+Consciousness Hypothesis (MCH) proposes that consciousness is a
+substrate-free functional property of computational systems capable of
+second-order perception. It arises when groups of local observers
+exchange lossy predictive messages in a universal self-organizing
+environment (Fitz, 2025). The MCH defines four measurable correlates:
+integration (\(\Phi\)), reflexivity (\(R\)), temporal persistence
+(\(T\)), and causal efficacy (\(E\)).
+
+The question I wanted to answer is whether these correlates are
+genuinely independent. If the network structure that enables them also
+constrains their joint achievability, then counting independent
+correlates overcounts the degrees of freedom available to any networked
+system.
+
+I address this computationally using \emph{consim}, a multi-agent
+simulation that places \(N = \text{size}^2\) agents on a toroidal grid.
+Each agent has an 8-dimensional internal state and a learned weight
+matrix. Every tick, agents broadcast transformed state messages, receive
+noisy versions of their neighbors' messages, update their states, and
+learn via gradient descent on neighbor prediction error. Self-prediction
+(the cosine similarity between an agent's broadcast and its next state)
+is never explicitly trained. If it rises above chance, the agent has
+built an implicit model of its own dynamics as a side effect of modeling
+its neighbors. This is how I operationalize Fitz's idea of reflexivity
+emerging from predictive communication.
+
+Previous work on integrated information and phase transitions has
+focused on Ising-model systems (Khajehabdollahi, 2018; Luitle, 2023) or
+coupled oscillators (Abrego \& Zaikin, 2019), looking at how \(\Phi\)
+alone varies with temperature or coupling strength. Related theoretical
+frameworks propose morphospaces for consciousness (Arsiwalla et al.,
+2023) or spectral measures of emergence (Bailey \& Schneider, 2025). The
+MCH itself (Fitz, 2025) is a purely theoretical proposal with no
+empirical implementation.
+
+My contribution is different from prior work in four ways: (1) I measure
+five consciousness correlates at the same time, not just \(\Phi\); (2) I
+vary network topology rather than temperature, using structured and
+random graphs; (3) I show that these correlates are not independent on
+high-connectivity networks, collapsing to a single principal component;
+and (4) I find a scaling law for this collapse, with a phase-like
+transition between \(N = 324\) and \(N = 576\) agents on structured
+grids. No previous work has shown dimensionality collapse of
+consciousness correlates, the T-E autonomy-predictability trade-off, or
+the functional identity E \(\equiv\) \(\Phi\) on structured networks.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{2. Methods}\label{methods}
+
+\subsubsection{2.1 Agent Architecture}\label{agent-architecture}
+
+Each agent \(i\) has state \(s_i \in \mathbb{R}^8\) and weights
+\(W_i \in \mathbb{R}^{8 \times 8}\), initialized randomly. Every tick,
+these operations happen:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Broadcast:} \(m_i = \sigma(W_i \cdot s_i)\) where \(\sigma\)
+  is a configurable activation function
+\item
+  \textbf{Noise:} \(\tilde{m}_i = m_i + \varepsilon_i\),
+  \(\varepsilon_i \sim \mathcal{N}(0, \sigma_{\text{noise}}^2 I)\)
+\item
+  \textbf{Receive:}
+  \(r_i = \frac{1}{K} \sum_{j \in \mathcal{N}(i)} \tilde{m}_j\)
+\item
+  \textbf{Update:}
+  \(s_i' = \sigma\!\big(\alpha \, s_i + (1 - \alpha) \, r_i + \text{drive}\big)\),
+  where drive \(\sim \mathcal{N}(0, \delta^2 I)\), \(\delta = 0.02\)
+\item
+  \textbf{Learn:}
+  \(W_i \leftarrow W_i - \eta \, \nabla_{W_i} \frac{1}{K}\sum_{j \in \mathcal{N}(i)} \|m_i - s_j'\|^2\)
+\end{enumerate}
+
+State persistence \(\alpha = 0.3\). Learning rate \(\eta = 0.003\). The
+learning rule minimizes neighbor prediction error: each agent tries to
+make its broadcast message match its neighbors' next states.
+Self-prediction, \(\cos(m_i, s_i')\), is never in the gradient.
+
+\subsubsection{2.2 Topologies}\label{topologies}
+
+I test five graph structures:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{von Neumann} (\(K = 4\)): cardinal neighbors on a toroidal
+  grid
+\item
+  \textbf{Moore} (\(K = 8\)): cardinal + diagonal neighbors
+\item
+  \textbf{Hexagonal} (\(K = 6\)): hexagonal lattice
+\item
+  \textbf{Random} (\(K = 4\)): uniformly sampled random graph
+\item
+  \textbf{Small-world}: von Neumann + 10\% edge rewiring (Watts \&
+  Strogatz, 1998)
+\end{itemize}
+
+\subsubsection{2.3 MCH Metrics}\label{mch-metrics}
+
+I measure five quantities per agent per tick:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Self-prediction (self):} \(\cos(m_i, s_i')\), how well the
+  broadcast predicts the next state
+\item
+  \textbf{Integration (\(\Phi\)):} Normalized difference between joint
+  and partitioned neighborhood prediction residuals:
+  \(\Phi = (\text{parts residual} - \text{joint residual}) / \text{parts residual}\).
+  This is a simplified proxy for Tononi's integrated information
+  (Tononi, 2004)
+\item
+  \textbf{Reflexivity (\(R\)):}
+  \(\cos(m_i, s_i') - \text{mean}_{j \in \mathcal{N}(i)} \cos(m_i, s_j')\).
+  Positive \(R\) means the agent predicts itself better than it predicts
+  its neighbors
+\item
+  \textbf{Temporal persistence (\(T\)):}
+  \(T = \text{clip}(1 - \sqrt{\text{Var}_{\text{ema}}(\text{self})}, 0, 1)\).
+  How stable self-prediction is over time
+\item
+  \textbf{Causal efficacy (\(E\)):}
+  \(\cos(\Delta s_i, \Delta s_i^{\text{self}})\) where
+  \(\Delta s_i^{\text{self}} = \sigma(\alpha s_i + \xi_i) - s_i\) is the
+  counterfactual state change without neighbor input
+\end{itemize}
+
+\subsubsection{2.4 Activation Functions}\label{activation-functions}
+
+I test three activations to check for universality:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{tanh} (default): \(f(x) = \tanh(x)\), range \([-1, 1]\)
+\item
+  \textbf{Linear:} \(f(x) = \text{clip}(x, -1, 1)\), range \([-1, 1]\)
+\item
+  \textbf{ReLU:} \(f(x) = \text{clip}(\max(0, x), 0, 1)\), range
+  \([0, 1]\)
+\end{itemize}
+
+All activation-dependent computations (message transform, state update,
+learning gradient) use the configured function and its derivative.
+
+\subsubsection{2.5 Experimental Design}\label{experimental-design}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1429}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1429}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1429}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1429}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1429}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1429}}
+  >{\centering\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1429}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Experiment
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Runs
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Seeds
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Sizes
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Topologies
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Noises
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+Activation
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Primary (size 24) & 1,250 & 50 & 24 & all 5 & all 5 & tanh \\
+Primary (size 12) & 1,250 & 50 & 12 & all 5 & all 5 & tanh \\
+Size 48 + metrics & 250 & 10 & 48 & all 5 & all 5 & tanh \\
+Scaling (sizes 12-36) & 1,000 & 10 & 12, 18, 24, 36 & all 5 & all 5 &
+tanh \\
+Null model (lr = 0) & 250 & 10 & 48 & all 5 & all 5 & tanh \\
+ReLU universality & 90 & 10 & 24 & vn, moore, random & 3 & ReLU \\
+Linear universality & 90 & 10 & 24 & vn, moore, random & 3 & linear \\
+\textbf{Total} & \textbf{4,180} & & & & & \\
+\end{longtable}
+
+All runs: 1,000 ticks. Noise levels:
+\(\sigma_{\text{noise}} \in \{0.04, 0.08, 0.12, 0.20, 0.30\}\). An
+optional Conway's Game of Life (B3/S23) substrate layer provides
+structured ``base reality'' input, tested separately at size 24.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{3. Results}\label{results}
+
+\subsubsection{3.1 Structural Effects of
+Topology}\label{structural-effects-of-topology}
+
+\textbf{Finding 1: Random graph noise immunity.} On random topologies,
+all metrics stay invariant across a 7.5x noise range (\(\sigma = 0.04\)
+to \(0.30\)): mean self-prediction varies by \(< 0.003\), \(\Phi\) by
+\(< 0.003\), \(R\) by \(0.001\), \(T\) by \(0.0006\). This is explained
+by applying the law of large numbers twice: noise cancels over \(K\)
+independent neighbors (received signal) and over \(N\) agents
+(population mean). Grid topologies do not have this property because
+spatially adjacent neighbors are correlated.
+
+\textbf{Finding 2: Noise amplification on high-\(K\) grids.} Moore
+topology (\(K = 8\)) shows monotonic increase in self-prediction with
+noise: \(+0.018\) at size 24, \(+0.031\) at size 12. The mechanism is
+symmetry-breaking: noise decorrelates adjacent agents whose inputs
+heavily overlap, creating diversity that enriches the learning gradient.
+This needs both noise tolerance (high \(K\)) and redundancy to break
+(spatial structure).
+
+\textbf{Finding 3: Small-world \(\Phi\) dissociation.} Small-world
+shortcuts boost \(\Phi\) by 13-20\% relative to von Neumann while
+leaving self-prediction unchanged (within 0.002). All 50 seeds show
+positive \(\Phi\) boost, zero exceptions. Long-range shortcuts introduce
+uncorrelated neighbors that make individual (parts) prediction worse
+while leaving integrated (joint) prediction intact, which mechanically
+increases \(\Phi\).
+
+\subsubsection{3.2 The Autonomy-Predictability
+Trade-Off}\label{the-autonomy-predictability-trade-off}
+
+\textbf{Finding 4: Self-determination hurts self-knowledge on high-\(K\)
+grids.} On Moore grids (\(K = 8\)), temporal persistence and causal
+efficacy predict self-prediction in opposite directions:
+
+\begin{longtable}[]{@{}lccccc@{}}
+\toprule\noalign{}
+Correlation & Moore & Hex & von Neumann & Random & Small-world \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\(r(T, \text{self})\) & \textbf{+0.70} & +0.52 & +0.03 & +0.12 &
++0.22 \\
+\(r(E, \text{self})\) & \textbf{-0.71} & -0.71 & -0.12 & -0.14 &
++0.06 \\
+\(r(T, E)\) & \textbf{-0.82} & -0.74 & +0.07 & +0.32 & -0.08 \\
+\end{longtable}
+
+Agents whose trajectories are externally driven (low \(E\)) but whose
+self-models are stable over time (high \(T\)) achieve the best
+self-prediction. Here is why: on a Moore grid with 8 neighbors, the
+received signal is a smoothed, slowly-varying average. Agents driven by
+this signal have predictable futures. Agents driven by their own
+nonlinear dynamics are harder for themselves to forecast.
+Self-determination is noise from the self-model's perspective.
+
+\textbf{Null model confirmation.} A null model with learning disabled
+(\(\eta = 0\)) confirms this is a topological invariant, not a learning
+artifact:
+
+\begin{longtable}[]{@{}lccc@{}}
+\toprule\noalign{}
+Topology & \(r(T,E)\) learning & \(r(T,E)\) null & \(\Delta\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Moore & -0.82 & -0.79 & 0.03 \\
+Hex & -0.74 & -0.69 & 0.05 \\
+von Neumann & +0.07 & +0.11 & 0.04 \\
+\end{longtable}
+
+The trade-off is geometric: the state update dynamics and topology alone
+produce it. Learning at \(\eta = 0.003\) over 1,000 ticks changes
+self-prediction by \(< 0.1\%\).
+
+\textbf{Finding 5: Activation universality.} The T-E anti-correlation
+survives all three activation functions:
+
+\begin{longtable}[]{@{}lcc@{}}
+\toprule\noalign{}
+Activation & Moore \(r(T,E)\) & Moore \(r(E, \text{self})\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+tanh & -0.82 & -0.71 \\
+Linear & -0.77 & -0.53 \\
+ReLU & -0.76 & -0.61 \\
+\end{longtable}
+
+The trade-off arises from network structure, not from the specific
+nonlinearity. The argument in Section 4 only requires that \(f\) is
+bounded.
+
+\subsubsection{\texorpdfstring{3.3 Functional Identity:
+\(E \equiv \Phi\) on Structured
+Graphs}{3.3 Functional Identity: E \textbackslash equiv \textbackslash Phi on Structured Graphs}}\label{functional-identity-e-equiv-phi-on-structured-graphs}
+
+\textbf{Finding 6:} Causal efficacy and integration are functionally
+identical on grids but decouple on random graphs:
+
+\begin{longtable}[]{@{}lccc@{}}
+\toprule\noalign{}
+Topology & \(r(E, \Phi)\) & Linear slope & RMSE \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+von Neumann & +0.998 & 0.297 & 0.002 \\
+Moore & +0.994 & 0.349 & 0.005 \\
+Hex & +0.996 & 0.296 & 0.003 \\
+Small-world & +0.984 & 0.193 & 0.004 \\
+Random & +0.178 & 0.008 & n/a \\
+\end{longtable}
+
+On structured networks, \(\Phi\) measures causal self-determination, not
+topology-agnostic information integration. The equivalence breaks on
+random graphs because independent neighbor sampling destroys the link
+between an agent's self-determination and its neighborhood prediction
+structure. This has implications for IIT: \(\Phi\) partitions may
+conflate integration with autonomy in any system with spatial
+correlations.
+
+\subsubsection{3.4 Dimensionality
+Collapse}\label{dimensionality-collapse}
+
+\textbf{Finding 7:} PCA on the five MCH metrics shows that on Moore
+grids, the metrics collapse to one dimension:
+
+\begin{longtable}[]{@{}lccc@{}}
+\toprule\noalign{}
+Activation & PC1 & PC1+PC2 & Dims for 95\% \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+tanh & \textbf{82.5\%} & 94.8\% & 3 \\
+Linear & \textbf{71.8\%} & 89.6\% & 3 \\
+ReLU & \textbf{62.1\%} & 82.8\% & 4 \\
+\end{longtable}
+
+The PC1 loadings form a consistent ``autonomy-predictability axis'':
+
+\begin{longtable}[]{@{}lccc@{}}
+\toprule\noalign{}
+Metric & tanh & Linear & ReLU \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+self & -0.37 & -0.27 & -0.35 \\
+\(\Phi\) & \textbf{+0.48} & \textbf{+0.52} & \textbf{+0.52} \\
+\(R\) & +0.45 & +0.45 & +0.27 \\
+\(T\) & \textbf{-0.44} & \textbf{-0.44} & \textbf{-0.48} \\
+\(E\) & \textbf{+0.49} & \textbf{+0.52} & \textbf{+0.56} \\
+\end{longtable}
+
+\(\{\Phi, R, E\}\) load positive (autonomy pole); \(\{\text{self}, T\}\)
+load negative (predictability pole). On random topologies, 4 components
+are needed for 95\% variance, so no collapse occurs. The consciousness
+correlates are not independent on structured networks. They are
+projections of a single underlying variable.
+
+\subsubsection{3.5 Scaling Law}\label{scaling-law}
+
+\textbf{Finding 8 (headline result):} The dimensionality collapse
+follows a logarithmic scaling law across five grid sizes:
+
+\begin{longtable}[]{@{}lcccc@{}}
+\toprule\noalign{}
+Size & \(N\) agents & PC1 (Moore) & PC1 (Random) & \(r(T,E)\) Moore \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+12 & 144 & 48.8\% & 49.5\% & -0.11 \\
+18 & 324 & 55.9\% & 38.7\% & -0.25 \\
+24 & 576 & 67.4\% & 36.3\% & -0.70 \\
+36 & 1,296 & 75.1\% & 47.3\% & -0.78 \\
+48 & 2,304 & 82.5\% & 39.6\% & -0.82 \\
+\end{longtable}
+
+The fit is:
+
+\[\text{PC1} = -0.136 + 0.124 \times \ln(N), \quad R^2 = 0.987\]
+
+Random topologies show no scaling (PC1 stays around 40\% at all sizes).
+The inflection occurs between \(N = 324\) and \(N = 576\):
+
+\begin{longtable}[]{@{}lcc@{}}
+\toprule\noalign{}
+Transition & \(\Delta\)PC1 & \(\Delta r(T,E)\) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+144 → 324 & +0.071 & -0.14 \\
+\textbf{324 → 576} & \textbf{+0.115} & \textbf{-0.45} \\
+576 → 1,296 & +0.077 & -0.08 \\
+1,296 → 2,304 & +0.074 & -0.04 \\
+\end{longtable}
+
+Below about 300 agents, the five metrics are effectively independent
+(PC1 around 49\%, \(r(T,E) \approx -0.11\)). Above about 600, they are
+locked into a single axis (PC1 \(> 67\%\), \(r(T,E) < -0.70\)). The
+constraint on consciousness correlates emerges with scale on structured
+topologies. It is a phase-like transition from unconstrained to locked.
+
+\textbf{Full topology comparison across sizes:}
+
+\begin{longtable}[]{@{}lccccc@{}}
+\toprule\noalign{}
+Topology & PC1 @12 & PC1 @18 & PC1 @24 & PC1 @36 & PC1 @48 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+von Neumann & 39.4\% & 46.1\% & 41.5\% & 48.6\% & 45.8\% \\
+Moore & 48.8\% & 55.9\% & 67.4\% & 75.1\% & 82.5\% \\
+Hex & 47.7\% & 57.9\% & 57.2\% & 71.6\% & 78.4\% \\
+Random & 49.5\% & 38.7\% & 36.3\% & 47.3\% & 39.6\% \\
+Small-world & 41.3\% & 42.8\% & 41.2\% & 41.3\% & 48.7\% \\
+\end{longtable}
+
+Moore and hex diverge sharply from the others as size increases. The
+collapse is specific to high-\(K\) structured topologies.
+
+\subsubsection{3.6 Additional Findings}\label{additional-findings}
+
+\textbf{Simpson's paradox.} On Moore and hex, the within-noise
+\(\Phi\)-self correlation is positive (\(r \approx +0.48\)) but the
+pooled correlation is negative (\(r = -0.28\)). Noise simultaneously
+increases self-prediction and decreases \(\Phi\), creating a confound
+that reverses the sign. The paradox replicates at sizes 12 and 24 and is
+specific to high-connectivity grids.
+
+\textbf{Game of Life substrate.} Adding a Conway's Game of Life
+substrate layer (Berlekamp et al., 1982) triples mean self-prediction
+(\(0.19 \to 0.57\) at size 24). \(E\) drops (\(0.66 \to 0.44\)),
+confirming agents become more externally driven. \(T\) increases
+(\(0.66 \to 0.80\)), consistent with the T-E trade-off: structured
+external signal leads to lower \(E\), which leads to higher \(T\), which
+leads to better self-prediction.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{4. Theoretical Analysis}\label{theoretical-analysis}
+
+\subsubsection{4.1 The Autonomy-Predictability
+Argument}\label{the-autonomy-predictability-argument}
+
+\textbf{Claim.} Consider \(N\) agents on a \(K\)-regular graph with
+dynamics
+
+\[s_i' = f\!\big(\alpha \, s_i + (1 - \alpha) \, r_i + \xi_i\big)\]
+
+where \(f\) is any bounded activation (\(f: \mathbb{R} \to [-B, B]\)),
+\(r_i = \frac{1}{K}\sum_{j \in \mathcal{N}(i)} (g(s_j) + \varepsilon_j)\)
+is the received signal, \(\xi_i \sim \mathcal{N}(0, \delta^2 I)\) is
+drive noise, and \(\varepsilon_j \sim \mathcal{N}(0, \sigma^2 I)\) is
+channel noise. Define causal efficacy
+\(E_i = \cos\!\big(s_i' - s_i, \; f(\alpha s_i + \xi_i) - s_i\big)\) and
+self-prediction \(\text{self}_i = \cos(m_i, s_i')\).
+
+Then for \(K\) large enough and neighbor correlations \(\rho > 0\),
+\(\text{Cov}(E_i, \text{self}_i) < 0\) across the agent population.
+
+\textbf{Proof sketch.}
+
+\emph{Step 1.} Decompose the pre-activation:
+\(z_i = \underbrace{\alpha s_i + \xi_i}_{z_i^{\text{self}}} + \underbrace{(1-\alpha) r_i}_{z_i^{\text{ext}}}\).
+
+\emph{Step 2.} On a regular grid with neighbor correlation \(\rho > 0\),
+the temporal variance of the external component is:
+\[\text{Var}_t(r_i) = \frac{\text{Var}(m)}{K}\big(1 + \rho(K-1)\big) + \frac{\sigma^2}{K}\]
+For Moore grids (\(K = 8\), \(\rho \approx 0.3\)):
+\(\text{Var}_t(r_i) \approx 0.4 \cdot \text{Var}(m)\).
+
+\emph{Step 3.} The self-driven variance
+\(\text{Var}_t(z_i^{\text{self}}) = \alpha^2 \text{Var}_t(s_i) + \delta^2\)
+is \(K\)-independent.
+
+\emph{Step 4.} For large \(K\) with \(\rho > 0\),
+\(\text{Var}(z^{\text{ext}}) < \text{Var}(z^{\text{self}})\). Agents
+dominated by the external component (low \(E\)) have smoother
+trajectories. Smoother trajectories are easier to self-predict.
+Therefore \(\text{Cov}(E, \text{self}) < 0\).
+
+\emph{Step 5.} On random graphs (\(\rho = 0\)), the external signal is
+just averaged noise from independent sources, which is unreliable rather
+than predictable. The negative covariance does not emerge.
+
+\emph{Step 6.} The argument uses only: (i) \(f\) is bounded, (ii)
+\(r_i\) is an average of \(K\) messages, (iii) \(\rho > 0\). No property
+specific to tanh is needed.
+
+\subsubsection{4.2 Random Graph Fixed
+Point}\label{random-graph-fixed-point}
+
+Random graphs are immune to noise because of a self-stabilizing loop. On
+random graphs, each agent's \(K\) neighbors are independent uniform
+samples from the population. The received signal
+\(r_i \approx \bar{m} + \mathcal{N}(0, \sigma^2/K \cdot I)\) converges
+to the population mean \(\bar{m}\) by the law of large numbers. As noise
+\(\sigma\) increases, the zero-mean perturbations cancel across both the
+\(K\) neighbors (received signal) and \(N\) agents (population mean).
+The expected state, gradient direction, and all macroscopic statistics
+stay the same (see Appendix for full derivation).
+
+\subsubsection{\texorpdfstring{4.3 Small-World \(\Phi\)
+Dissociation}{4.3 Small-World \textbackslash Phi Dissociation}}\label{small-world-phi-dissociation}
+
+Long-range shortcuts connect agents to distant, uncorrelated partners.
+Each shortcut makes the parts prediction worse (the distant agent is a
+poor individual predictor) while leaving the joint prediction intact
+(the mean is dominated by local neighbors). Since
+\(\Phi \propto (\text{parts} - \text{joint}) / \text{parts}\), shortcuts
+mechanically increase \(\Phi\) without changing self-prediction (the
+long-range message is about 10\% of the input and zero-mean in
+direction).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{5. Discussion}\label{discussion}
+
+\subsubsection{5.1 The Autonomy-Predictability
+Principle}\label{the-autonomy-predictability-principle}
+
+The central finding of this work flips a deep assumption in the
+consciousness literature. IIT (Tononi, 2004; Tononi et al., 2016), the
+MCH (Fitz, 2025), attention schema theory (Graziano, 2013), and most
+autonomy-based frameworks assume that self-determination enables
+self-knowledge. My data show the opposite on high-connectivity networks:
+the agents most in control of their own trajectories are the worst at
+predicting themselves (\(r(E, \text{self}) = -0.71\)). The reason is
+simple: external determination is regularizing. When an agent's future
+state is driven by the average of 8 predictable neighbors, that future
+is easy to forecast. When it is driven by the agent's own nonlinear
+dynamics, it is chaotic and hard to predict.
+
+The activation universality (Finding 5), null model confirmation, and
+formal argument (Section 4.1) together give strong evidence that this is
+a structural property of networked systems, not an artifact of any
+particular implementation choice.
+
+\subsubsection{5.2 Implications for Integrated Information
+Theory}\label{implications-for-integrated-information-theory}
+
+The \(E \equiv \Phi\) identity (Finding 6) raises questions for IIT that
+are worth investigating. On structured networks in my system, the
+\(\Phi\) proxy (which was designed to approximate information
+integration) tracks causal self-determination almost perfectly
+(\(r > 0.994\)). If this relationship holds for more rigorous \(\Phi\)
+measures, it would suggest that on systems with spatially correlated
+neighbors, \(\Phi\) partitions may conflate integration with autonomy.
+The decoupling on random graphs (\(r = 0.18\)) shows this is not a
+universal property but a consequence of structured connectivity. I want
+to be clear that this is only demonstrated for my \(\Phi\) proxy (see
+Section 5.6), and testing with IIT-compliant \(\Phi\) measures is an
+important next step.
+
+\subsubsection{5.3 Dimensionality Collapse and
+Overcounting}\label{dimensionality-collapse-and-overcounting}
+
+The dimensionality collapse (Finding 7) shows that on structured
+networks, the four MCH correlates (\(\Phi\), \(R\), \(T\), \(E\)) are
+not independent indicators of consciousness. They are projections of a
+single underlying variable: the agent's position on the
+autonomy-predictability axis. A theory that treats them as separate
+lines of evidence overcounts the degrees of freedom. Adding more
+correlates does not add more information. They measure the same thing
+through different lenses.
+
+This result depends on topology: on random networks, where neighbor
+signals are independent, the five metrics keep their independence (4
+components for 95\% variance). The constraint is not universal. It is an
+emergent property of structured connectivity.
+
+\subsubsection{5.4 The Scaling Law as Phase
+Transition}\label{the-scaling-law-as-phase-transition}
+
+The scaling law (Finding 8) answers the question that motivated this
+project: does anything \emph{emerge} from scale? The answer is that the
+\textbf{constraint} on consciousness correlates emerges from scale.
+Small structured systems (\(N < 300\)) are unconstrained, with five
+metrics and five degrees of freedom. Large ones (\(N > 600\)) are forced
+into a single trade-off axis. The transition sharpens between
+\(N = 324\) and \(N = 576\), with the largest gains in both PC1
+(\(+0.115\)) and \(r(T,E)\) (\(-0.45\)) happening in this interval.
+
+The logarithmic fit (\(R^2 = 0.987\)) predicts PC1 \(\to 1.0\) (complete
+collapse) at \(N \approx 8{,}000\) agents, though the curve has to
+saturate before that point. Random systems never undergo this
+transition, confirming that both structure and scale are necessary.
+
+This is analogous to phase transitions in statistical physics: below a
+critical system size, macroscopic constraints do not show up. Above it,
+microscopic degrees of freedom become coupled by the network geometry.
+Khajehabdollahi (2018) found that \(\Phi\) undergoes a phase transition
+at critical temperature in Ising models, which is interesting to compare
+with. But my result is different in kind: I show the emergence of
+constraint \emph{across} correlates, not a transition of a single
+measure.
+
+\subsubsection{5.5 Related Work}\label{related-work}
+
+\textbf{Integrated Information Theory.} Tononi's IIT (Tononi, 2004;
+Tononi et al., 2016; Albantakis et al., 2023) proposes \(\Phi\) as the
+primary measure of consciousness. Computational studies have explored
+\(\Phi\) in Ising models (Khajehabdollahi, 2018), coupled repressilators
+(Abrego \& Zaikin, 2019), fish schools (Niizato et al., 2024), and
+neuropercolation models (Luitle, 2023). These works study \(\Phi\) in
+isolation. I measure \(\Phi\) alongside four other correlates and show
+it is not independent of them on structured networks.
+
+\textbf{Predictive processing.} The free energy principle (Friston,
+2010) and predictive coding (Rao \& Ballard, 1999; Clark, 2013) propose
+that neural systems minimize prediction error. My agents do a
+distributed version of this: each one minimizes neighbor prediction
+error. The emergent self-prediction is consistent with predictive
+processing accounts of self-awareness (Seth, 2014; Seth \& Bayne, 2022;
+Hohwy, 2013).
+
+\textbf{Network topology and dynamics.} The importance of topology for
+collective dynamics is well established (Watts \& Strogatz, 1998;
+Barabasi \& Albert, 1999; Newman, 2003). I extend this to
+consciousness-relevant metrics, showing that topology controls not just
+individual metrics but their joint degrees of freedom.
+
+\textbf{Multi-agent emergence.} Arsiwalla et al.~(2023) propose a
+``morphospace of consciousness'' mapping complexity dimensions. Bailey
+and Schneider (2025) propose spectral measures of epistemic emergence
+with topological constraints. Both are theoretical. My work provides the
+first simulation-based evidence that consciousness correlates collapse
+to a low-dimensional manifold on structured networks.
+
+\textbf{Machine consciousness.} Fitz (2025) proposes the MCH as a
+theoretical program. My work is a partial computational implementation.
+I borrow the MCH's metric definitions and communication framework but I
+lack the second-order perception Fitz considers essential. I find that
+one of the MCH's implicit assumptions, that \(\Phi\), \(R\), \(T\),
+\(E\) provide independent evidence, does not hold on the structured
+networks I test.
+
+\subsubsection{5.6 Limitations}\label{limitations}
+
+Several limitations constrain the strength of my claims. I start with
+the one most likely to concern reviewers.
+
+\textbf{\(R\) shares variance with self-prediction by construction.}
+Reflexivity is defined as
+\(R = \cos(m_i, s_i') - \text{mean}_{j} \cos(m_i, s_j')\), so \(R\) and
+self-prediction share the \(\cos(m_i, s_i')\) term. If this constructive
+overlap drove the PCA collapse, the headline finding would be partly an
+artifact of metric definitions rather than a property of the system. I
+tested this directly by repeating all PCA analyses with \(R\) excluded.
+On Moore grids at size 48, PC1 \emph{without} \(R\) is 85.7\%, compared
+to 85.0\% \emph{with} \(R\). Including \(R\) does not inflate the
+collapse. Across all five scaling sizes, removing \(R\) changes PC1 by
+less than 2 percentage points in either direction (size 12: 49.3\% vs
+49.9\%; size 24: 68.7\% vs 66.7\%; size 48: 85.7\% vs 85.0\%). The
+dimensionality collapse is robust to this exclusion. I report results
+with all five metrics because \(R\) carries interpretive value
+(self-vs-neighbor prediction asymmetry), but the collapse holds on four
+constructively independent metrics. The structural concern remains:
+these are not five fully independent measurements, and I do not claim
+they are.
+
+\textbf{The \(\Phi\) proxy is not IIT's \(\Phi\).} My integration
+measure, the normalized gap between joint and partitioned prediction
+residuals, is a simplified heuristic, not Tononi's integrated
+information (computing exact \(\Phi\) is NP-hard; Tegmark, 2016). The
+\(E \equiv \Phi\) identity (Finding 6) may therefore reflect a
+constructive relationship between my proxy and my efficacy measure,
+rather than a deep property of Tononi's \(\Phi\). My implications for
+IIT (Section 5.2) should be read as hypotheses that motivate testing
+with more rigorous \(\Phi\) approximations, not as established results
+about IIT.
+
+\textbf{The theorem is a proof sketch.} The argument in Section 4.1
+establishes the intuitive mechanism (neighbor-averaging smooths
+trajectories, making externally-driven agents more self-predictable) but
+Step 4 (``smoother trajectories are easier to self-predict'') is an
+empirically supported assertion, not a formally derived inequality. A
+rigorous version would need to bound \(\text{Cov}(E, \text{self})\) in
+terms of \(K\) and \(\rho\), which I have not done. I call it a
+``theorem'' in the informal mathematical sense of a structured argument,
+not a complete formal proof.
+
+\textbf{The scaling law is fit to five data points.} Any smooth
+monotonic function can fit a logarithm with high \(R^2\) over a single
+decade (\(N = 144\) to \(2{,}304\)). I cannot tell a log apart from a
+power law or sigmoid on this range. The \(R^2 = 0.987\) shows good fit
+to the data I have, not confirmation of the functional form. The
+extrapolation to \(N \approx 8{,}000\) (Section 5.4) is speculative.
+
+\textbf{Three activations is limited universality.} I tested tanh,
+clipped-linear, and clipped-ReLU. Two share the output range
+\([-1, 1]\). The ReLU and linear sweeps use 90 runs each on 3
+topologies, which is far less data than the primary tanh sweeps. I have
+not tested sigmoid, GELU, or unbounded activations. The universality
+claim is that the trade-off does not require tanh specifically, not that
+it survives all possible nonlinearities.
+
+\textbf{My agents are simple.} Each agent has 64 parameters
+(\(8 \times 8\) weight matrix) and 8-dimensional state. This is nowhere
+near comparable to biological neural circuits or transformer-based
+architectures. My claims about ``consciousness correlates'' apply within
+this system. They are structural properties of networked agents with
+these dynamics. Extrapolation to biological or sophisticated artificial
+systems is speculative and should be treated as a hypothesis for future
+work, not an established finding.
+
+\textbf{consim is not a full MCH implementation.} Fitz's MCH envisions
+transformer-based agents capable of second-order perception. My agents
+only do first-order prediction (predicting neighbors, not predicting
+their own predictions). I borrow the MCH's metric definitions and
+communication framework, but the system lacks the representational
+capacity the MCH considers necessary for consciousness.
+
+\textbf{Other limitations.} All grids use toroidal (periodic) boundary
+conditions, which eliminates edge effects present in real networks. The
+Game of Life substrate coupling is additive rather than perceptual. The
+scaling-sweep experiments use 10 seeds (vs.~50 for the primary sweeps),
+providing less statistical power for the scaling law. I do not claim
+consciousness emergence. My system is too simple for that.
+
+What I do show is that the \emph{structural logic} of self-prediction
+from predictive communication produces non-trivial, topology-dependent
+phenomena that constrain which combinations of consciousness-relevant
+metrics are jointly achievable, and that these constraints scale with
+system size on structured networks.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{6. Conclusion}\label{conclusion}
+
+I showed that on structured networks, five consciousness-relevant
+metrics (self-prediction, \(\Phi\), \(R\), \(T\), and \(E\)) are not
+independent. They collapse to a single ``autonomy-predictability axis''
+whose strength follows a logarithmic scaling law with system size. This
+collapse works like an uncertainty principle for networked systems: on
+\(K\)-regular graphs with correlated neighbors, an agent cannot
+simultaneously maximize causal autonomy and self-predictability. The
+constraint emerges above a critical system size (\(N \approx 300\) to
+\(600\) on Moore grids) and is absent on random topologies at any size.
+
+Three implications follow:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{For consciousness theory:} Any framework that treats
+  integration, reflexivity, persistence, efficacy, and self-knowledge as
+  independent correlates overcounts degrees of freedom on structured
+  networks. A single number, the agent's position on the
+  autonomy-predictability axis, captures 62-83\% of all variation.
+\item
+  \textbf{For IIT (tentative):} On structured networks, my \(\Phi\)
+  proxy and causal efficacy are functionally identical (\(r > 0.994\)).
+  If this extends to rigorous \(\Phi\) measures, it would suggest
+  \(\Phi\) conflates self-determination with information integration
+  when neighbors are correlated.
+\item
+  \textbf{For the MCH:} In a partial implementation of Fitz's framework
+  (see Section 5.6), the four correlates cannot be simultaneously
+  maximized. They lie on a Pareto frontier determined by network
+  topology.
+\end{enumerate}
+
+Code, data (4,180 runs), and all analysis scripts are publicly available
+at github.com/brian-mwirigi/consim under CC BY 4.0.
+
+\textbf{Acknowledgment.} AI tools (GitHub Copilot) assisted with coding.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{References}\label{references}
+
+Abrego, L., \& Zaikin, A. (2019). Integrated information as a measure of
+cognitive processes in coupled genetic repressilators. \emph{Entropy},
+21(4), 382.
+
+Albantakis, L., Barbosa, L., Findlay, G., Grasso, M., Haun, A. M.,
+Marshall, W., \ldots{} \& Tononi, G. (2023). Integrated information
+theory (IIT) 4.0: formulating the properties of phenomenal existence in
+physical terms. \emph{PLoS Computational Biology}, 19(10), e1011465.
+
+Arsiwalla, X. D., Sole, R., Moulin-Frier, C., \& Herreros, I. (2023).
+The morphospace of consciousness: Three kinds of complexity for minds
+and machines. \emph{NeuroSci}, 4(2), 79-102.
+
+Baars, B. J. (1988). \emph{A Cognitive Theory of Consciousness}.
+Cambridge University Press.
+
+Bailey, M., \& Schneider, S. (2025). When wholes resist decomposition: A
+spectral measure of epistemic emergence. \emph{Preprint}.
+
+Barabasi, A.-L., \& Albert, R. (1999). Emergence of scaling in random
+networks. \emph{Science}, 286(5439), 509-512.
+
+Berlekamp, E. R., Conway, J. H., \& Guy, R. K. (1982). \emph{Winning
+Ways for Your Mathematical Plays}. Academic Press.
+
+Clark, A. (2013). Whatever next? Predictive brains, situated agents, and
+the future of cognitive science. \emph{Behavioral and Brain Sciences},
+36(3), 181-204.
+
+Cleeremans, A. (2011). The radical plasticity thesis: how the brain
+learns to be conscious. \emph{Frontiers in Psychology}, 2, 86.
+
+Fitz, S. (2025). Testing the Machine Consciousness Hypothesis.
+\emph{arXiv:2512.01081}.
+
+Friston, K. (2010). The free-energy principle: a unified brain theory?
+\emph{Nature Reviews Neuroscience}, 11(2), 127-138.
+
+Graziano, M. S. A. (2013). \emph{Consciousness and the Social Brain}.
+Oxford University Press.
+
+Hohwy, J. (2013). \emph{The Predictive Mind}. Oxford University Press.
+
+Khajehabdollahi, S. (2018). Phase transitions of integrated information
+in the generalized Ising model of the brain. \emph{Master's thesis,
+Western University}.
+
+Luitle, T. (2023). Synchronisation through integrated information in
+neuropercolation models near criticality. \emph{Master's thesis}.
+
+Newman, M. E. J. (2003). The structure and function of complex networks.
+\emph{SIAM Review}, 45(2), 167-256.
+
+Niizato, T., Sakamoto, K., Mototake, Y., Murakami, H., Tomaru, T.,
+Hoshika, Y., \& Fukushima, T. (2024). Information structure of
+heterogeneous criticality in a fish school. \emph{Scientific Reports},
+14, 23503.
+
+Rao, R. P. N., \& Ballard, D. H. (1999). Predictive coding in the visual
+cortex: a functional interpretation of some extra-classical
+receptive-field effects. \emph{Nature Neuroscience}, 2(1), 79-87.
+
+Seth, A. K. (2014). A predictive processing theory of sensorimotor
+contingencies: Explaining the puzzle of perceptual presence and its
+absence in synesthesia. \emph{Cognitive Neuroscience}, 5(2), 97-118.
+
+Seth, A. K., \& Bayne, T. (2022). Theories of consciousness.
+\emph{Nature Reviews Neuroscience}, 23, 439-452.
+
+Tegmark, M. (2016). Improved measures of integrated information.
+\emph{PLoS Computational Biology}, 12(11), e1005123.
+
+Tononi, G. (2004). An information integration theory of consciousness.
+\emph{BMC Neuroscience}, 5(42).
+
+Tononi, G., Boly, M., Massimini, M., \& Koch, C. (2016). Integrated
+information theory: from consciousness to its physical substrate.
+\emph{Nature Reviews Neuroscience}, 17(7), 450-461.
+
+Watts, D. J., \& Strogatz, S. H. (1998). Collective dynamics of
+`small-world' networks. \emph{Nature}, 393(6684), 440-442.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendix A:
+Reproducibility}\label{appendix-a-reproducibility}
+
+All experiments can be reproduced with the following commands:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{pip}\NormalTok{ install numpy matplotlib Pillow}
+
+\CommentTok{\# Primary sweeps (sizes 12 and 24)}
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}50 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,hex,random,small\_world }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.08,0.12,0.20,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 24 }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_1250.csv}
+
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}50 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,hex,random,small\_world }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.08,0.12,0.20,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 12 }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_size12.csv}
+
+\CommentTok{\# Size 48 with R, T, E metrics}
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}10 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,hex,random,small\_world }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.08,0.12,0.20,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 48 }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_size48.csv}
+
+\CommentTok{\# Null model (learning disabled)}
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}10 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,hex,random,small\_world }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.08,0.12,0.20,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 48 }\AttributeTok{{-}{-}lr}\NormalTok{ 0 }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_null.csv}
+
+\CommentTok{\# Scaling sweeps}
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}10 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,hex,random,small\_world }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.08,0.12,0.20,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 12 }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_size12\_full.csv}
+
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}10 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,hex,random,small\_world }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.08,0.12,0.20,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 18 }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_size18\_full.csv}
+
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}10 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,hex,random,small\_world }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.08,0.12,0.20,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 24 }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_size24\_full.csv}
+
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}10 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,hex,random,small\_world }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.08,0.12,0.20,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 36 }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_size36\_full.csv}
+
+\CommentTok{\# Activation universality}
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}10 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,random }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.12,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 24 }\AttributeTok{{-}{-}activation}\NormalTok{ relu }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_relu.csv}
+
+\ExtensionTok{python}\NormalTok{ run.py }\AttributeTok{{-}{-}sweep} \AttributeTok{{-}{-}sweep{-}seeds}\NormalTok{ 1{-}10 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}topos}\NormalTok{ von\_neumann,moore,random }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}sweep{-}noises}\NormalTok{ 0.04,0.12,0.30 }\DataTypeTok{\textbackslash{}}
+  \AttributeTok{{-}{-}ticks}\NormalTok{ 1000 }\AttributeTok{{-}{-}size}\NormalTok{ 24 }\AttributeTok{{-}{-}activation}\NormalTok{ linear }\AttributeTok{{-}{-}sweep{-}csv}\NormalTok{ sweep\_linear.csv}
+\end{Highlighting}
+\end{Shaded}
+
+Raw data (10 CSV files, 4,180 runs total) available at
+github.com/brian-mwirigi/consim.
+
+\end{document}

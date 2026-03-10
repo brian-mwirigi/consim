@@ -132,7 +132,7 @@ When you put a small group of agents on a network — say, 150 of them — and l
 
 ### The numbers
 
-6,750+ simulations across five grid sizes (12, 18, 24, 36, 48), five topologies, five noise levels, and three activation functions.
+4,180 simulation runs across five grid sizes (12, 18, 24, 36, 48), five topologies, five noise levels, and three activation functions.
 
 **The scaling law (headline result):**
 - PC1 variance explained on Moore grids: 49% (144 agents) → 56% (324) → 67% (576) → 75% (1296) → 83% (2304)

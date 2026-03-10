@@ -289,7 +289,7 @@ Random leads in Phi and R but trails in self-prediction and E. Moore leads in se
 
 ## Deep cross-dataset analysis
 
-Statistical mining across all three datasets (5,500 total simulation rows). The findings below were verified for replication across at least two grid sizes unless noted.
+Statistical mining across all three datasets (2,750 runs; sizes 12, 24, 48). The findings below were verified for replication across at least two grid sizes unless noted.
 
 ### 1. Self-determination hurts self-knowledge (structural, not learned)
 
@@ -434,16 +434,31 @@ python run.py --sweep --sweep-seeds 1-10 \
   --sweep-topos von_neumann,moore,hex,random,small_world \
   --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
   --ticks 1000 --size 48 --lr 0 --sweep-csv sweep_null.csv
-```
 
-## Null model: learning disabled (lr=0)
+# Scaling sweeps (sizes 18 and 36)
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,hex,random,small_world \
+  --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
+  --ticks 1000 --size 18 --sweep-csv sweep_size18_full.csv
 
 python run.py --sweep --sweep-seeds 1-10 \
   --sweep-topos von_neumann,moore,hex,random,small_world \
   --sweep-noises 0.04,0.08,0.12,0.20,0.30 \
-  --ticks 1000 --size 48 --lr 0 --sweep-csv sweep_null.csv
+  --ticks 1000 --size 36 --sweep-csv sweep_size36_full.csv
 
+# Activation universality sweeps
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,random \
+  --sweep-noises 0.04,0.12,0.30 \
+  --ticks 1000 --size 24 --activation relu --sweep-csv sweep_relu.csv
+
+python run.py --sweep --sweep-seeds 1-10 \
+  --sweep-topos von_neumann,moore,random \
+  --sweep-noises 0.04,0.12,0.30 \
+  --ticks 1000 --size 24 --activation linear --sweep-csv sweep_linear.csv
 ```
+
+## Null model: learning disabled (lr=0)
 
 250 runs identical to the size-48 sweep except learning rate = 0. Agents still communicate, update states, and compute metrics — but their weight matrices never move from random initialization. The gradient step `W -= lr * dW` becomes a no-op.
 

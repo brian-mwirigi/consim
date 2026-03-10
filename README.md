@@ -128,19 +128,28 @@ python run.py --record long_run.gif --record-ticks 5000 --fps 30
 
 ## What we found
 
-5,500 simulations across grid sizes 12, 24, and 48. Three structural effects replicate at all sizes (analytical derivations in [THEORY.md](THEORY.md)):
+When you put a small group of agents on a network — say, 150 of them — and let them talk to their neighbors and try to predict each other, they each develop their own personality. Some become stable, some become autonomous, some become good at predicting themselves, some become tightly integrated with their neighbors. These traits vary independently — knowing one tells you nothing about the others. It's like a room full of people who are each doing their own thing. But as you make the network bigger — 300, 600, 1000, 2000 agents — something changes. The traits stop being independent. They start locking together. By the time you have 600 agents on a structured grid, there's really only one axis left: you're either autonomous or predictable, and you can't be both. An agent that controls its own trajectory can't forecast where it's going. An agent whose future is driven by its neighbors can see exactly what's coming. Five different measurements of "consciousness-like" properties — integration, reflexivity, persistence, efficacy, self-knowledge — all collapse into different views of that single trade-off. And the weird part: this only happens when the connections have structure. If you wire the agents randomly, the traits stay independent forever, no matter how big the network gets. It's not size alone. It's size plus structure. Somewhere around 400 to 500 agents on a structured grid, the system crosses a line. Below it, anything is possible. Above it, the network imposes a law.
 
-1. **Random graphs are noise-immune fixed points.** Every metric flat within 0.002 across a 7.5× noise range. LLN over independent neighbors.
-2. **Noise amplifies self-prediction on high-K grids.** Moore gains +0.018 in self-prediction from low to high noise. Symmetry-breaking decorrelation.
-3. **Small-world shortcuts boost Φ 20% without touching behavior.** Uncorrelated long-range neighbors inflate parts residual.
+### The numbers
 
-And three findings from the deep cross-dataset analysis:
+6,750+ simulations across five grid sizes (12, 18, 24, 36, 48), five topologies, five noise levels, and three activation functions.
 
-4. **E ≡ Φ on structured graphs.** Causal efficacy and Phi correlate at r = 0.994–0.998 on every grid topology but decouple on random (r = 0.18). Phi is measuring causal self-determination, not topology-agnostic integration.
-5. **Simpson's paradox.** Φ-self correlation is positive within each noise level but negative when pooled, on moore and hex only.
-6. **Self-determination hurts self-knowledge on moore.** r(T, self) = +0.70, r(E, self) = −0.71, r(T, E) = −0.82. Agents that control their own trajectories are the worst at predicting themselves. Externally driven agents with stable self-models predict best.
+**The scaling law (headline result):**
+- PC1 variance explained on Moore grids: 49% (144 agents) → 56% (324) → 67% (576) → 75% (1296) → 83% (2304)
+- Fit: PC1 = −0.136 + 0.124 × ln(N), R² = 0.987
+- Inflection between N=324 and N=576 — the largest jump in both PC1 and r(T,E)
+- Random topologies: flat at ~40% PC1 across all sizes (control)
 
-Full data and analysis: [FINDINGS.md](FINDINGS.md). Analytical derivations: [THEORY.md](THEORY.md).
+**Supporting results:**
+1. **Self-determination hurts self-knowledge.** r(T,E) = −0.82 on Moore. Agents that control their own trajectories are worst at predicting themselves.
+2. **The trade-off is structural, not algorithmic.** Null model (no learning): r(T,E) = −0.79. Activation-independent: tanh −0.82, linear −0.77, ReLU −0.76.
+3. **E ≡ Φ on structured graphs.** r > 0.994 on every grid topology, r = 0.18 on random. Φ measures causal self-determination, not integration.
+4. **Random graphs are noise-immune fixed points.** Every metric flat within 0.002 across 7.5× noise range.
+5. **Noise amplifies self-prediction on high-K grids.** Moore gains +0.018 from low to high noise.
+6. **Small-world shortcuts boost Φ 20% without touching behavior.**
+7. **Simpson's paradox.** Φ-self correlation reverses sign between within-noise and pooled analyses on Moore and hex.
+
+Full data and analysis: [FINDINGS.md](FINDINGS.md). Analytical derivations: [THEORY.md](THEORY.md). Formal abstract: [ABSTRACT.md](ABSTRACT.md).
 
 ## Loading saved runs
 

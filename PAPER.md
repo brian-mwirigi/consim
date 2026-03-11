@@ -153,6 +153,8 @@ On structured networks, $\Phi$ measures causal self-determination, not topology-
 | Linear | **71.8%** | 89.6% | 3 |
 | ReLU | **62.1%** | 82.8% | 4 |
 
+*Note:* tanh values are from size-48 Moore grids ($N = 2{,}304$ agents, 250 runs); Linear and ReLU values are from size-24 Moore grids ($N = 576$, 90 runs each). At size 24, tanh PC1 is 67.4%, lower than Linear's 71.8%. The cross-activation comparison therefore reflects both activation function and system size. Section 3.5 reports uniform-size scaling.
+
 The PC1 loadings form a consistent "autonomy-predictability axis":
 
 | Metric | tanh | Linear | ReLU |
@@ -292,7 +294,7 @@ This is analogous to phase transitions in statistical physics: below a critical 
 
 Several limitations constrain the strength of my claims. I start with the one most likely to concern reviewers.
 
-**$R$ shares variance with self-prediction by construction.** Reflexivity is defined as $R = \cos(m_i, s_i') - \text{mean}_{j} \cos(m_i, s_j')$, so $R$ and self-prediction share the $\cos(m_i, s_i')$ term. If this constructive overlap drove the PCA collapse, the headline finding would be partly an artifact of metric definitions rather than a property of the system. I tested this directly by repeating all PCA analyses with $R$ excluded. On Moore grids at size 48, PC1 *without* $R$ is 85.7%, compared to 85.0% *with* $R$. Including $R$ does not inflate the collapse. Across all five scaling sizes, removing $R$ changes PC1 by less than 2 percentage points in either direction (size 12: 49.3% vs 49.9%; size 24: 68.7% vs 66.7%; size 48: 85.7% vs 85.0%). The dimensionality collapse is robust to this exclusion. I report results with all five metrics because $R$ carries interpretive value (self-vs-neighbor prediction asymmetry), but the collapse holds on four constructively independent metrics. The structural concern remains: these are not five fully independent measurements, and I do not claim they are.
+**$R$ shares variance with self-prediction by construction.** Reflexivity is defined as $R = \cos(m_i, s_i') - \text{mean}_{j} \cos(m_i, s_j')$, so $R$ and self-prediction share the $\cos(m_i, s_i')$ term. If this constructive overlap drove the PCA collapse, the headline finding would be partly an artifact of metric definitions rather than a property of the system. I tested this directly by repeating all PCA analyses with $R$ excluded. On Moore grids at size 48, PC1 *without* $R$ is 83.9%, compared to 82.5% *with* $R$. Including $R$ does not inflate the collapse. Across all five scaling sizes, removing $R$ changes PC1 by less than 2 percentage points in either direction (size 12: 49.1% vs 48.8%; size 24: 69.8% vs 67.4%; size 48: 83.9% vs 82.5%). The dimensionality collapse is robust to this exclusion. I report results with all five metrics because $R$ carries interpretive value (self-vs-neighbor prediction asymmetry), but the collapse holds on four constructively independent metrics. The structural concern remains: these are not five fully independent measurements, and I do not claim they are.
 
 **The $\Phi$ proxy is not IIT's $\Phi$.** My integration measure, the normalized gap between joint and partitioned prediction residuals, is a simplified heuristic, not Tononi's integrated information (computing exact $\Phi$ is NP-hard; Tegmark, 2016). The $E \equiv \Phi$ identity (Finding 6) may therefore reflect a constructive relationship between my proxy and my efficacy measure, rather than a deep property of Tononi's $\Phi$. My implications for IIT (Section 5.2) should be read as hypotheses that motivate testing with more rigorous $\Phi$ approximations, not as established results about IIT.
 
@@ -318,7 +320,7 @@ I showed that on structured networks, five consciousness-relevant metrics (self-
 
 Three implications follow:
 
-1. **For consciousness theory:** Any framework that treats integration, reflexivity, persistence, efficacy, and self-knowledge as independent correlates overcounts degrees of freedom on structured networks. A single number, the agent's position on the autonomy-predictability axis, captures 62-83% of all variation.
+1. **For consciousness theory:** Any framework that treats integration, reflexivity, persistence, efficacy, and self-knowledge as independent correlates overcounts degrees of freedom on structured networks. A single number, the agent's position on the autonomy-predictability axis, captures 62–83% of all variation (across activations and system sizes).
 
 2. **For IIT (tentative):** On structured networks, my $\Phi$ proxy and causal efficacy are functionally identical ($r > 0.994$). If this extends to rigorous $\Phi$ measures, it would suggest $\Phi$ conflates self-determination with information integration when neighbors are correlated.
 
@@ -326,7 +328,15 @@ Three implications follow:
 
 Code (MIT license), data (4,180 runs), and all analysis scripts are publicly available at github.com/brian-mwirigi/consim.
 
-**Acknowledgment.** GitHub Copilot was used for code assistance during development.
+**Acknowledgment.** AI tools (GitHub Copilot) assisted with coding.
+
+### Errata (v2)
+
+The following corrections were made relative to v1 (DOI: 10.5281/zenodo.18940956):
+
+1. **Section 5.6, $R$-exclusion PCA (6 numbers corrected).** v1 reported stale values. Corrected: size 12 with/without $R$: 48.8%/49.1% (was 49.9%/49.3%); size 24: 67.4%/69.8% (was 66.7%/68.7%); size 48: 82.5%/83.9% (was 85.0%/85.7%). Qualitative conclusion unchanged.
+2. **Section 3.4, size mismatch disclosed.** The Finding 7 PCA table compared tanh at size 48 with Linear/ReLU at size 24 without disclosure. A note now states that at the same size 24, tanh PC1 is 67.4%, lower than Linear's 71.8%.
+3. **Section 6, "62–83%" clarified.** Range spans different activations *and* system sizes; parenthetical added.
 
 ---
 

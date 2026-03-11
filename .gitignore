@@ -28,6 +28,22 @@ desktop.ini
 *.npz
 results/
 
+# LaTeX build artifacts
+PAPER.aux
+PAPER.log
+PAPER.out
+PAPER.toc
+PAPER.fls
+PAPER.fdb_latexmk
+PAPER.synctex.gz
+
+# Generated PDFs (publish via Zenodo, not git)
+PAPER.pdf
+consim_paper.pdf
+
+# Archived submissions
+arxiv_submission.zip
+
 # Internal working notes (not for publishing)
 ABSTRACT.md
 FINDINGS.md

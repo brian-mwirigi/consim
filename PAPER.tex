@@ -498,6 +498,12 @@ Linear & \textbf{71.8\%} & 89.6\% & 3 \\
 ReLU & \textbf{62.1\%} & 82.8\% & 4 \\
 \end{longtable}
 
+\noindent\emph{Note:} tanh values are from size-48 Moore grids ($N = 2{,}304$
+agents, 250 runs); Linear and ReLU values are from size-24 Moore grids
+($N = 576$, 90 runs each). At size 24, tanh PC1 is 67.4\%, lower than
+Linear's 71.8\%. The cross-activation comparison therefore reflects both
+activation function and system size. Section 3.5 reports uniform-size scaling.
+
 The PC1 loadings form a consistent ``autonomy-predictability axis'':
 
 \begin{longtable}[]{@{}lccc@{}}
@@ -813,11 +819,11 @@ self-prediction share the \(\cos(m_i, s_i')\) term. If this constructive
 overlap drove the PCA collapse, the headline finding would be partly an
 artifact of metric definitions rather than a property of the system. I
 tested this directly by repeating all PCA analyses with \(R\) excluded.
-On Moore grids at size 48, PC1 \emph{without} \(R\) is 85.7\%, compared
-to 85.0\% \emph{with} \(R\). Including \(R\) does not inflate the
+On Moore grids at size 48, PC1 \emph{without} \(R\) is 83.9\%, compared
+to 82.5\% \emph{with} \(R\). Including \(R\) does not inflate the
 collapse. Across all five scaling sizes, removing \(R\) changes PC1 by
-less than 2 percentage points in either direction (size 12: 49.3\% vs
-49.9\%; size 24: 68.7\% vs 66.7\%; size 48: 85.7\% vs 85.0\%). The
+less than 2 percentage points in either direction (size 12: 49.1\% vs
+48.8\%; size 24: 69.8\% vs 67.4\%; size 48: 83.9\% vs 82.5\%). The
 dimensionality collapse is robust to this exclusion. I report results
 with all five metrics because \(R\) carries interpretive value
 (self-vs-neighbor prediction asymmetry), but the collapse holds on four
@@ -913,7 +919,8 @@ Three implications follow:
   integration, reflexivity, persistence, efficacy, and self-knowledge as
   independent correlates overcounts degrees of freedom on structured
   networks. A single number, the agent's position on the
-  autonomy-predictability axis, captures 62-83\% of all variation.
+  autonomy-predictability axis, captures 62--83\% of all variation
+  (across activations and system sizes).
 \item
   \textbf{For IIT (tentative):} On structured networks, my \(\Phi\)
   proxy and causal efficacy are functionally identical (\(r > 0.994\)).
@@ -930,7 +937,27 @@ Three implications follow:
 Code, data (4,180 runs), and all analysis scripts are publicly available
 at github.com/brian-mwirigi/consim (code under MIT license).
 
-\textbf{Acknowledgment.} GitHub Copilot was used for code assistance during development.
+\textbf{Acknowledgment.} AI tools (GitHub Copilot) assisted with coding.
+
+\subsection*{Errata (v2)}
+
+The following corrections were made relative to v1 (DOI: 10.5281/zenodo.18940956):
+
+\begin{enumerate}
+\item \textbf{Section 5.6, \(R\)-exclusion PCA (6 numbers corrected).}
+  v1 reported stale values. Corrected:
+  size~12 with/without~\(R\): 48.8\%/49.1\% (was 49.9\%/49.3\%);
+  size~24: 67.4\%/69.8\% (was 66.7\%/68.7\%);
+  size~48: 82.5\%/83.9\% (was 85.0\%/85.7\%).
+  Qualitative conclusion unchanged.
+\item \textbf{Section 3.4, size mismatch disclosed.}
+  The Finding~7 PCA table compared tanh at size~48 with Linear/ReLU at
+  size~24 without disclosure. A note now states that at the same size~24,
+  tanh PC1 is 67.4\%, lower than Linear's 71.8\%.
+\item \textbf{Section 6, ``62--83\%'' clarified.}
+  Range spans different activations \emph{and} system sizes; parenthetical
+  added.
+\end{enumerate}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 

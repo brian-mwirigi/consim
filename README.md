@@ -1,16 +1,16 @@
 # consim
 
-I gave 2,304 agents one job: predict your neighbors. They started predicting themselves.
+I gave 2,304 agents one job: predict your neighbors. And they started predicting themselves.
 
 ![emergence](emergence.gif)
 
 I made 2,304 small agents on a grid. Each one sends a message to its four neighbors every tick. The messages have noise. Each agent learns to predict what its neighbors will do next. That is the only training objective.
 
-I also measured something that is not part of the training. I check how well each agent's outgoing message predicts its own next state. This number is never optimized. Never rewarded. The agents have no reason to be good at it.
+I also measured something that is not part of the training. I check how well each agent's outgoing message predicts its own next state. This number is never optimized nor never rewarded.
 
 It goes up.
 
-Not always. Not every agent. But run this with seed 7 and wait. Around tick 800, one agent hits 0.94 on self-prediction. I have run this dozens of times. Seed 7 does it reliably. Seed 12 never does. Same code, same parameters, different initial random weights. I don't know why.
+Not every agent though. But run this with seed 7 and wait. Around tick 800, one agent hits 0.94 on self-prediction. I have run this dozens of times. Seed 7 does it reliably. Seed 12 never does. Its the same code, same parameters but  different initial random weights.
 
 I also approximate four MCH (Micro-Coherence Hypothesis) metrics per agent:
 
@@ -74,7 +74,7 @@ You can interact with the grid during live runs:
 | `P` | View | Toggle heatmap between self-model and Phi |
 | `Esc` | Off | Stop intervening |
 
-Killing an agent collapses it. Some neighbors compensate, some degrade. Isolating a high-scorer sometimes preserves its self-model for hundreds of ticks and sometimes collapses it within ten. I have no explanation for the difference.
+Killing an agent collapses it. Some neighbors compensate, some degrade. Isolating a high-scorer sometimes preserves its self-model for hundreds of ticks and sometimes collapses it within ten.
 
 ## Parameter sweep
 
@@ -126,9 +126,10 @@ python run.py --record long_run.gif --record-ticks 5000 --fps 30
 | `--gol-coupling` | 0.1 | GoL signal strength |
 | `--gol-density` | 0.5 | Initial GoL alive fraction |
 
-## What we found
+## What I found
 
-When you put a small group of agents on a network — say, 150 of them — and let them talk to their neighbors and try to predict each other, they each develop their own personality. Some become stable, some become autonomous, some become good at predicting themselves, some become tightly integrated with their neighbors. These traits vary independently — knowing one tells you nothing about the others. It's like a room full of people who are each doing their own thing. But as you make the network bigger — 300, 600, 1000, 2000 agents — something changes. The traits stop being independent. They start locking together. By the time you have 600 agents on a structured grid, there's really only one axis left: you're either autonomous or predictable, and you can't be both. An agent that controls its own trajectory can't forecast where it's going. An agent whose future is driven by its neighbors can see exactly what's coming. Five different measurements of "consciousness-like" properties — integration, reflexivity, persistence, efficacy, self-knowledge — all collapse into different views of that single trade-off. And the weird part: this only happens when the connections have structure. If you wire the agents randomly, the traits stay independent forever, no matter how big the network gets. It's not size alone. It's size plus structure. Somewhere around 400 to 500 agents on a structured grid, the system crosses a line. Below it, anything is possible. Above it, the network imposes a law.
+When you put a small group of agents on a network lets say, 150 of them and let them talk to their neighbors and try to predict each other, they each develop their own personality. Some become stable, some become autonomous, some become good at predicting themselves, some become tightly integrated with their neighbors. These traits vary independently knowing one tells you nothing about the others. It's like a room full of people who are each doing their own thing. But as you make the network bigger 300, 600, 1000, 2000 agents The traits stop being independent. They start locking together. By the time you have 600 agents on a structured grid, there's really only one axis left: you're either autonomous or predictable, and you can't be both. An agent that controls its own trajectory can't forecast where it's going. An agent whose future is driven by its neighbors can see exactly what's coming. Five different measurements of "consciousness-like" properties: integration, reflexivity, persistence, efficacy, self-knowledge all collapse into different views of that single trade-off. This only happens when the connections have structure. If you wire the agents randomly, the traits stay independent forever, no matter how big the network gets.
+Somewhere around 400 to 500 agents on a structured grid, the system crosses a line. Below it, anything is possible. Above it, the network imposes a law.
 
 ### The numbers
 
@@ -215,7 +216,7 @@ print(f"Clusters:  {cluster_count(w, threshold=0.5)}")
 
 Seed 7 produces a 0.93+ agent every time. Seed 12 does not. The weight initialization creates basins of attraction I can't characterize.
 
-High-scoring agents cluster on the grid. I don't know if one agent being good at self-prediction makes its neighbor better, or if they just happen to share favorable noise. I have tried killing a high-scorer to see if the cluster degrades. Sometimes it does. Sometimes the neighbors get better. I don't understand that at all.
+High-scoring agents cluster on the grid. I don't know if one agent being good at self-prediction makes its neighbor better, or if they just happen to share favorable noise. I have tried killing a high-scorer to see if the cluster degrades. Sometimes it does. Sometimes the neighbors get better.
 
 Moore topology (8 neighbors) produces more uniform self-model distributions than von Neumann (4 neighbors). Hex (6 neighbors) produces tighter clusters. Random graphs sometimes produce isolated high-scorers with no spatial pattern. I don't have a theory for why neighbor count relates to spatial structure this way.
 
@@ -227,7 +228,7 @@ Phi and self-model score don't always correlate. Some agents show high informati
 
 ## Results
 
-I ran 3,750+ simulations across multiple grid sizes (12, 24, 48), 50 seeds, 5 topologies, and 5 noise levels. Full writeup with tables: [FINDINGS.md](FINDINGS.md). Analytical derivations for the three replicating effects: [THEORY.md](THEORY.md). Extended abstract for MC0001 conference submission: [ABSTRACT.md](ABSTRACT.md).
+I ran 3,750+ simulations across multiple grid sizes (12, 24, 48), 50 seeds, 5 topologies, and 5 noise levels. Full writeup with tables: [FINDINGS.md](FINDINGS.md).
 
 Short version: more neighbors produces slightly higher self-prediction. Self-prediction is noise-robust but Phi is not (except on random graphs, where both are noise-immune). Phi and self-model score are not measuring the same thing. Initial conditions matter more than parameter choices. Game of Life substrate triples self-prediction but reduces causal efficacy.
 

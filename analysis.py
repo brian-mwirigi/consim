@@ -8,6 +8,7 @@ for systematic experimentation.
 import csv
 import sys
 import numpy as np
+from collections import deque
 from typing import List, Dict, Any
 from world import World, Config
 
@@ -75,10 +76,10 @@ def cluster_count(world: World, threshold: float = 0.5) -> int:
         if not above[start] or visited[start]:
             continue
         count += 1
-        queue = [start]
+        queue = deque([start])
         visited[start] = True
         while queue:
-            node = queue.pop(0)
+            node = queue.popleft()
             for nb in world._nbr[node]:
                 if above[nb] and not visited[nb]:
                     visited[nb] = True

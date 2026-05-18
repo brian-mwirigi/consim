@@ -6,11 +6,12 @@ METRICS = ['mean_self', 'mean_phi', 'mean_R', 'mean_T', 'mean_E']
 TOPOS = ['von_neumann', 'moore', 'hex', 'random', 'small_world']
 
 FILES = [
-    ('Size 12 (144 agents)',   'sweep_size12_full.csv'),
-    ('Size 18 (324 agents)',   'sweep_size18_full.csv'),
-    ('Size 24 (576 agents)',   'sweep_size24_full.csv'),
-    ('Size 36 (1296 agents)',  'sweep_size36_full.csv'),
-    ('Size 48 (2304 agents)',  'sweep_size48.csv'),
+    ('Size 12 (144 agents)',    'sweep_size12_full.csv'),
+    ('Size 18 (324 agents)',    'sweep_size18_full.csv'),
+    ('Size 24 (576 agents)',    'sweep_size24_full.csv'),
+    ('Size 36 (1296 agents)',   'sweep_size36_full.csv'),
+    ('Size 48 (2304 agents)',   'sweep_size48.csv'),
+    ('Size 96 (9216 agents)',   'sweep_size96.csv'),
 ]
 REQUIRED_FILES = [path for _, path in FILES]
 

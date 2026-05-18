@@ -116,6 +116,9 @@ def run_sweep(
     results = []
     total = len(seeds) * len(topologies) * len(noises)
     done = 0
+    fieldnames = None
+    csv_file = None
+    csv_writer = None
 
     for noise in noises:
         for topo in topologies:
@@ -161,6 +164,18 @@ def run_sweep(
                         }
                         results.append(row)
 
+                        # ── Incremental CSV flush ─────────────────────────────
+                        # Writes each row immediately so a Colab/Kaggle
+                        # disconnect mid-sweep doesn't lose completed work.
+                        if output_csv:
+                            if csv_file is None:
+                                fieldnames = list(row.keys())
+                                csv_file = open(output_csv, "w", newline="")
+                                csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                                csv_writer.writeheader()
+                            csv_writer.writerow(row)
+                            csv_file.flush()
+
                 done += 1
                 ss = world.self_scores
                 sys.stdout.write(
@@ -173,12 +188,8 @@ def run_sweep(
 
     print()
 
-    if output_csv:
-        fieldnames = list(results[0].keys())
-        with open(output_csv, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(results)
+    if csv_file is not None:
+        csv_file.close()
         print(f"  Saved {len(results)} rows to {output_csv}")
 
     return results
